@@ -116,9 +116,25 @@ Home / Collection / Product section，然后 `shopify theme push --unpublished -
 ./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm --dry-run
 ```
 
-实现见 [runtime/shopify-geo-eval-workshop](../../runtime/shopify-geo-eval-workshop/)。这是一份 workshop scorecard，不是完整诊断。它只接受 Preview Store，只读 Admin 的 title / description / media / SEO 字段，样本最多 10 个商品，按已发布的 5 维权重打分。成功后写 `geo.before.json` 与短页 `geo.before.md`，并把 `geo.before_score`、`geo.evidence_mode`、`geo.restrictions` 写入 `workshop-state.yaml`。`after_score` 与 `optimizer_status` 留给后续优化器。
+实现见 [runtime/shopify-geo-eval-workshop](../../runtime/shopify-geo-eval-workshop/)。这是一份 workshop scorecard，不是完整诊断。它只接受 Preview Store，只读 Admin 的 title / description / media / SEO 字段，样本最多 10 个商品，按已发布的 5 维权重打分。成功后写 `geo.before.json` 与短页 `geo.before.md`，并把 `geo.before_score`、`geo.evidence_mode`、`geo.restrictions` 写入 `workshop-state.yaml`。`after_score` 与 `optimizer_status` 由优化器写入。优化器再评分时调用同一 runtime 的 `apply --phase after`，不会覆盖 `before_score`。
 
 HTML 只用编排器传来的 `storefront_session=access_url` 句柄，在运行时解析当次 `shopify store info` 会话，不把 URL 写入状态或 scorecard。会话缺失、`--dry-run`、`--skip-html`，或商品还不是 Active + Online Store 时，以 `evidence_mode=admin_only` 继续。`apply` 缺少 `--confirm` 必须拒绝。不改商品，不改主题，不接收店面密码。
+
+## GEO 优化运行时（批 P0 写回）
+
+`propose_geo_optimizations`、`human_review_p0_batch`、`apply_geo_optimizations` 和 `run_geo_eval_after` 的已落地命令是：
+
+```bash
+./scripts/shopify-geo-optimizer.sh plan --group-id A
+# 人工确认「批准全部 P0」后：
+./scripts/shopify-geo-optimizer.sh apply --group-id A --confirm --approve-all-p0
+# 无 Shopify、无再评分的演练：
+./scripts/shopify-geo-optimizer.sh apply --group-id A --confirm --approve-all-p0 --dry-run
+```
+
+实现见 [runtime/shopify-geo-optimizer](../../runtime/shopify-geo-optimizer/)。它只读 workshop scorecard 和 `brand-brief.json`，不读取完整版诊断。`plan` 写 `geo.proposal.json`，不写 Admin。`apply` 必须带 `--confirm`。`--approve-all-p0` 一次批准全部 P0；P1 折叠可跳过；`--deep-review` 最多 1–2 个商品。没有已批准集合时拒绝写回。只接受 Preview Store。
+
+写回后调用 `shopify-geo-eval-workshop apply --confirm --phase after`，得到 `geo.after.json`，并更新 `geo.after_score` 与 `geo.optimizer_status`（批 P0 为 `approved_p0_batch`）。`--dry-run` 不调用 Shopify，写入 fixture after 分。不把 accessUrl、token、店面密码写入产物，不发布主题。
 
 ## 交给 GEO 的连接信息
 

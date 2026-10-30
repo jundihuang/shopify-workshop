@@ -9,6 +9,8 @@ export const REPO_ROOT = path.resolve(SRC_DIR, "../../..");
 export const PLAN_FILENAME = "geo.plan.json";
 export const SCORE_FILENAME = "geo.before.json";
 export const SCORE_MARKDOWN_FILENAME = "geo.before.md";
+export const AFTER_SCORE_FILENAME = "geo.after.json";
+export const AFTER_MARKDOWN_FILENAME = "geo.after.md";
 export const SAMPLE_LIMIT = 10;
 export const ADMIN_PROBE_LIMIT = 11;
 

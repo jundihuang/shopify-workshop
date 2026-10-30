@@ -1,0 +1,22 @@
+{
+  "brand_name": "Aurora Skincare",
+  "category": "serum",
+  "scene": "a short morning routine",
+  "audience": {
+    "primary": "Adults who want a short daily routine"
+  },
+  "tone": {
+    "voice": "calm and specific",
+    "avoid": [
+      "medical claims (cure, heal, diagnose, clinically proven, FDA-approved, medical-grade)",
+      "hype or guarantees (miracle, guaranteed, overnight results, 100% effective, world's best)",
+      "luxury hype"
+    ]
+  },
+  "selling_points": [
+    "Ingredient names in plain language",
+    "Use notes for one routine step"
+  ],
+  "locale": "en-US",
+  "currency": "USD"
+}

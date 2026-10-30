@@ -121,3 +121,48 @@ export function updateGeoBeforeState(existingText, { beforeScore, evidenceMode, 
   }
   return output;
 }
+
+/**
+ * Update only geo.after_score. before_score, evidence_mode, restrictions,
+ * and optimizer_status stay as the other runtimes left them.
+ */
+export function updateGeoAfterState(existingText, { afterScore }) {
+  if (!Number.isInteger(afterScore) || afterScore < 0 || afterScore > 100) {
+    throw new Error("geo.after_score must be an integer from 0 to 100");
+  }
+  return replaceGeoScalars(existingText, { after_score: String(afterScore) });
+}
+
+function replaceGeoScalars(existingText, updates) {
+  let text = typeof existingText === "string" ? existingText.replace(/\r\n/g, "\n") : "";
+  if (text.length > 0 && !text.endsWith("\n")) text += "\n";
+  const lines = text.length > 0 ? text.slice(0, -1).split("\n") : [];
+  let start = topLevelIndex(lines, "geo");
+  if (start === -1) {
+    if (lines.length > 0 && lines[lines.length - 1] !== "") lines.push("");
+    lines.push("geo:");
+    for (const [key, value] of Object.entries(updates)) lines.push(`  ${key}: ${value}`);
+  } else {
+    let end = start + 1;
+    while (end < lines.length) {
+      const line = lines[end];
+      if (line.trim() !== "" && !/^\s/.test(line)) break;
+      end += 1;
+    }
+    for (const [key, value] of Object.entries(updates)) {
+      const pattern = new RegExp(`^  ${key}:`);
+      const index = lines.findIndex((line, lineIndex) => lineIndex > start && lineIndex < end && pattern.test(line));
+      if (index === -1) {
+        lines.splice(end, 0, `  ${key}: ${value}`);
+        end += 1;
+      } else {
+        lines[index] = `  ${key}: ${value}`;
+      }
+    }
+  }
+  const output = `${lines.join("\n").replace(/\n{3,}/g, "\n\n").replace(/\n+$/, "")}\n`;
+  if (/access[_-]?url\s*:\s*https?:\/\//i.test(output)) {
+    throw new Error("Refusing to write workshop-state.yaml with an accessUrl value");
+  }
+  return output;
+}

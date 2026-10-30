@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readWorkshopFacts, updateGeoBeforeState } from "../src/state.js";
+import { readWorkshopFacts, updateGeoAfterState, updateGeoBeforeState } from "../src/state.js";
 
 const EXISTING = `group_id: "A"
 store_domain: "aurora-workshop-mvp.myshopify.com"
@@ -60,6 +60,17 @@ test("geo before update preserves later sections and other geo keys", () => {
   assert.equal(facts.storefrontSession, "access_url");
   assert.equal(facts.previewUrl, "https://aurora-workshop-mvp.myshopify.com/?preview_theme_id=123");
   assert.equal(facts.storeDomain, "aurora-workshop-mvp.myshopify.com");
+});
+
+test("geo after update writes after_score and keeps the before score", () => {
+  const next = updateGeoAfterState(EXISTING, { afterScore: 78 });
+  assert.match(next, /^ {2}after_score: 78$/m);
+  assert.match(next, /^ {2}before_score: null$/m);
+  assert.match(next, /^ {2}optimizer_status: pending$/m);
+  assert.match(next, /^ {2}evidence_mode: admin_only$/m);
+  assert.match(next, /old_restriction/);
+  assert.match(next, /channel_status: online_store_active/);
+  assert.equal(next.includes("https://preview.example.invalid"), false);
 });
 
 test("geo before update refuses an accessUrl assignment", () => {

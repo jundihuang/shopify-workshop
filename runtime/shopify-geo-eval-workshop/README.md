@@ -65,6 +65,9 @@ apply will try storefront HTML. It does not call Shopify and does not write
 
 # Admin fields only, even on a live Preview Store:
 ./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm --skip-html
+
+# After the optimizer writes product fields. Does not replace geo.before.json.
+./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm --phase after
 ```
 
 `apply` refuses to run without `--confirm`, including `--dry-run`.
@@ -77,6 +80,7 @@ It writes:
 .workshop/<group_id>/workshop-state.yaml    # geo.before_score, evidence_mode, restrictions
 ```
 
+- `--phase after` writes `geo.after.json` and `geo.after.md`, and updates only `geo.after_score`. The default phase is `before`.
 - `--dry-run` scores `fixtures/admin-products.success.json` and sets `evidence_mode=admin_only` with `html_evidence_skipped`.
 - A live run reads at most 11 Admin products so the scored sample can be capped at 10.
 - Storefront HTML is requested only when `products.channel_status` is `online_store_active`, the session handle is `access_url`, and neither `--dry-run` nor `--skip-html` is set.

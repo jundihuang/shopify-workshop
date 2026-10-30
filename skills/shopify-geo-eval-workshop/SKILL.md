@@ -88,6 +88,9 @@ Product Data Completeness 只依赖 A。B 缺失时 Search / AI / Trust 用 Admi
 
 # 即使已连接，也只评 Admin 字段
 ./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm --skip-html
+
+# 优化器写回之后再评分：只写 after，不覆盖 before
+./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm --phase after
 ```
 
 写入：
@@ -96,7 +99,9 @@ Product Data Completeness 只依赖 A。B 缺失时 Search / AI / Trust 用 Admi
 .workshop/<group_id>/geo.plan.json          # plan
 .workshop/<group_id>/geo.before.json        # apply，符合 templates/geo-score.schema.json
 .workshop/<group_id>/geo.before.md
-.workshop/<group_id>/workshop-state.yaml    # geo.before_score、evidence_mode、restrictions
+.workshop/<group_id>/geo.after.json         # apply --phase after
+.workshop/<group_id>/geo.after.md
+.workshop/<group_id>/workshop-state.yaml    # before_score，或 --phase after 时的 after_score
 ```
 
 - 只接受 Preview Store。`apply` 不改商品、不改主题。
@@ -106,6 +111,7 @@ Product Data Completeness 只依赖 A。B 缺失时 Search / AI / Trust 用 Admi
 - HTML 仅在渠道已确认、会话句柄为 `access_url`、且没有 `--dry-run` / `--skip-html` 时，通过当次 `shopify store info` 抓取。URL 不入库。失败、429 或 Opening soon 页面都降为 `admin_only`。
 - 可以写店铺域名和安全的 `preview_url`（`https://{store}/?preview_theme_id={id}`）。禁止写入 accessUrl、Admin token、店面密码。
 - 传入 `--password` 或 connection 里带店面密码字段时直接拒绝。
+- `--phase after` 只更新 `geo.after_score`。`before_score`、`optimizer_status` 和 restrictions 保持原样。默认 `--phase before`。优化器用这一步做再评分，本 runtime 仍然只读。
 
 ## 验收
 

@@ -10,7 +10,7 @@ Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 4. 填充 Unpublished Theme 并拿到带 `?preview_theme_id=` 的 `previewUrl`  
 5. 用 Workshop 版 GEO 打分 → 批量确认 P0 优化 → 再打分  
 
-本仓库以**方案与 Skill 契约**为主，已落地六个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）、[runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（GEO 前人工确认：商品 Active + Online Store，Theme 保持 Unpublished）、[runtime/brand-intake](runtime/brand-intake/)（Brand Brief：把学员答案整理成 schema 校验过的 `brand-brief.json`，超时可加载 Aurora Skincare Demo Brief；只写本地 JSON）、[runtime/shopify-theme-builder](runtime/shopify-theme-builder/)（骨架填充 Brand Brief，`shopify theme push --unpublished`，返回带 `?preview_theme_id=` 的 `preview_url`；超时挂 Demo Theme，不发布主题）与 [runtime/shopify-geo-eval-workshop](runtime/shopify-geo-eval-workshop/)（Workshop 5 维 GEO before 分：只读 Admin 字段，最多 10 个商品；HTML 可选且不落 accessUrl）。优化器写回仍按 `skills/shopify-geo-optimizer/SKILL.md` 后续落地。
+本仓库以**方案与 Skill 契约**为主，已落地七个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）、[runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（GEO 前人工确认：商品 Active + Online Store，Theme 保持 Unpublished）、[runtime/brand-intake](runtime/brand-intake/)（Brand Brief：把学员答案整理成 schema 校验过的 `brand-brief.json`，超时可加载 Aurora Skincare Demo Brief；只写本地 JSON）、[runtime/shopify-theme-builder](runtime/shopify-theme-builder/)（骨架填充 Brand Brief，`shopify theme push --unpublished`，返回带 `?preview_theme_id=` 的 `preview_url`；超时挂 Demo Theme，不发布主题）、[runtime/shopify-geo-eval-workshop](runtime/shopify-geo-eval-workshop/)（Workshop 5 维 GEO before 分：只读 Admin 字段，最多 10 个商品；HTML 可选且不落 accessUrl）与 [runtime/shopify-geo-optimizer](runtime/shopify-geo-optimizer/)（按 workshop scorecard 和 Brand Brief 生成 P0 before/after，确认后写回并再评分；不携带完整版诊断）。
 
 商品导入主 Demo 使用合作伙伴 [INFLATION / inflationwear.com](https://inflationwear.com/collections/tshirt) 的公开商品样例（8 SKU）：
 
@@ -89,7 +89,21 @@ Workshop GEO before 是主题预览之后、优化器之前的只读打分。这
 ./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm --dry-run
 ```
 
-`plan` 只接受 Preview Store，写出 `geo.plan.json`，不打分。`apply` 必须带 `--confirm`（含 `--dry-run`）。它只读 Admin 的 title / description / media / SEO 字段，样本最多 10 个商品，按已发布的 5 维权重写出 `geo.before.json` 和一页 `geo.before.md`，并更新 `workshop-state.yaml` 的 `geo.before_score`、`geo.evidence_mode`、`geo.restrictions`。`--dry-run` 或跳过 HTML 时 `evidence_mode=admin_only`。店面 HTML 只用当次 `shopify store info` 会话，用完即弃。商品未处于 Active + Online Store 时只做 Admin 预检。这一步不改商品、不改主题、不接收店面密码，也不把 accessUrl 写入产物。
+`plan` 只接受 Preview Store，写出 `geo.plan.json`，不打分。`apply` 必须带 `--confirm`（含 `--dry-run`）。它只读 Admin 的 title / description / media / SEO 字段，样本最多 10 个商品，按已发布的 5 维权重写出 `geo.before.json` 和一页 `geo.before.md`，并更新 `workshop-state.yaml` 的 `geo.before_score`、`geo.evidence_mode`、`geo.restrictions`。`--dry-run` 或跳过 HTML 时 `evidence_mode=admin_only`。店面 HTML 只用当次 `shopify store info` 会话，用完即弃。商品未处于 Active + Online Store 时只做 Admin 预检。这一步不改商品、不改主题、不接收店面密码，也不把 accessUrl 写入产物。`--phase after` 改写 `geo.after.json` 和 `geo.after_score`，留给优化器在写回之后调用，不覆盖 before 分。
+
+P0 写回是 before 分之后的下一步。建议只来自 workshop scorecard 和 Brand Brief，不使用完整版诊断：
+
+```bash
+./scripts/shopify-geo-optimizer.sh plan --group-id A
+
+# 批准全部 P0，写回商品字段，再调用 workshop geo-eval：
+./scripts/shopify-geo-optimizer.sh apply --group-id A --confirm --approve-all-p0
+
+# 不调用 Shopify：写入 fixture after 分
+./scripts/shopify-geo-optimizer.sh apply --group-id A --confirm --approve-all-p0 --dry-run
+```
+
+`plan` 读 `geo.before.json` 和 `brand-brief.json`，写出 `geo.proposal.json`，不写 Admin。`apply` 必须带 `--confirm`。`--approve-all-p0` 一次批准 title、description、meta title、meta description 和 key attributes；P1 折叠可跳过；精审最多 1–2 个商品。没有已批准集合时拒绝写回。只接受 Preview Store。文案带品类、卖点和场景，并去掉 `tone.avoid` 和医疗/夸大说法。真实写回后调用 `shopify-geo-eval-workshop --phase after`。`--dry-run` 不访问 Shopify。这一步不发布主题，不把 accessUrl 写入产物。
 
 ## 文档导航
 

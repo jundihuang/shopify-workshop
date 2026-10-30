@@ -1,0 +1,47 @@
+{
+  "store": "aurora-workshop-mvp.myshopify.com",
+  "geo_score": 74,
+  "grade": "B",
+  "evidence_mode": "admin_only",
+  "restrictions": [
+    "html_evidence_skipped",
+    "unauthenticated_storefront_restricted"
+  ],
+  "dimensions": {
+    "product_data_completeness": 80,
+    "search_findability": 82,
+    "ai_understandability": 75,
+    "purchase_trust": 70,
+    "technical_visibility": 40
+  },
+  "top_issues": [
+    {
+      "issue": "Unauthenticated Preview Store endpoints are restricted.",
+      "impact": "Technical visibility stays capped on this workshop scorecard.",
+      "priority": "P2"
+    }
+  ],
+  "products": [
+    {
+      "handle": "daily-serum",
+      "score": 76,
+      "issues": [],
+      "priority": "P2",
+      "missing_fields": [],
+      "schema_status": "not_checked",
+      "seo_status": "present",
+      "ai_readability_status": "clear"
+    },
+    {
+      "handle": "night-cream",
+      "score": 74,
+      "issues": [],
+      "priority": "P2",
+      "missing_fields": [],
+      "schema_status": "not_checked",
+      "seo_status": "present",
+      "ai_readability_status": "clear"
+    }
+  ],
+  "skill": "shopify-geo-eval-workshop"
+}
