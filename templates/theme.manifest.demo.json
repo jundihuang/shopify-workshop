@@ -1,0 +1,9 @@
+{
+  "theme_id": 900000001,
+  "status": "fallback",
+  "preview_url": "https://demo-theme.myshopify.com/?preview_theme_id=900000001",
+  "fallback_used": true,
+  "pages": ["home", "collection", "product"],
+  "demo_theme_name": "ShopWright Demo Theme",
+  "note": "Documented unpublished Demo Theme for workshop fallback. Apply rewrites preview_url to the connected Preview Store. Set SHOPWRIGHT_DEMO_THEME_ID when that unpublished theme already exists on the store. This fixture is not a live theme."
+}

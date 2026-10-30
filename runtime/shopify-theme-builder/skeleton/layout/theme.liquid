@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{{ page_title }}{% if current_page != 1 %} &ndash; {{ 'general.shop' | t }} {{ current_page }}{% endif %}</title>
+    {{ content_for_header }}
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    <style>
+      :root {
+        --color-primary: {{ settings.color_primary }};
+        --color-secondary: {{ settings.color_secondary }};
+        --color-text: {{ settings.color_text }};
+      }
+    </style>
+  </head>
+  <body>
+    {% section 'header' %}
+    <main id="MainContent" role="main">
+      {{ content_for_layout }}
+    </main>
+    {% section 'footer' %}
+  </body>
+</html>

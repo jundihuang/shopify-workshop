@@ -1,0 +1,17 @@
+{
+  "name": "shopify-theme-builder-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Workshop theme runtime: fill a skeleton from brand-brief.json and push it as an unpublished Shopify theme.",
+  "type": "module",
+  "bin": {
+    "shopify-theme-builder": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
