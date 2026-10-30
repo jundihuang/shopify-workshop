@@ -62,6 +62,24 @@ Active 并发布到 Online Store，主题始终保持 Unpublished。成功后写
 `products.channel.json` 并把 `workshop-state.yaml` 的 `products.channel_status` 更新为
 `online_store_active`。`apply` 缺少 `--confirm` 必须拒绝。
 
+## 品牌 Brief 运行时（渠道发布之后的下一个 MVP）
+
+`create_brand_brief` 的已落地命令是：
+
+```bash
+./scripts/brand-intake.sh plan --group-id A --answers templates/brand-intake.answers.sample.json
+# 人工确认 plan 中的 missing[]、tone.avoid 与 participant_confirm_copy 后：
+./scripts/brand-intake.sh apply --group-id A --confirm --answers templates/brand-intake.answers.sample.json
+# 超时或没有答案文件：加载 Aurora Skincare，不访问网络
+./scripts/brand-intake.sh apply --group-id A --confirm --demo --dry-run
+```
+
+现场顺序仍是导入之后、骨架 Theme 之前。实现见 [runtime/brand-intake](../../runtime/brand-intake/)。
+它只写本地 JSON：`plan` 校验并列出 `missing[]` 与夸大/医疗风险，不落最终 brief；`apply` 必须带
+`--confirm`（含 `--dry-run`）。成功后写 `.workshop/<group_id>/brand-brief.json`，并把
+`brand.status` 更新为 `done`（学员答案，缺项用默认值）或 `fallback_demo`（Aurora Skincare）。
+locale / currency 默认 `en-US` / `USD`。不调用 Shopify，不改 Theme，不改商品，不写 `accessUrl`。
+
 ## 交给 GEO 的连接信息
 
 `run_geo_eval_before` / `run_geo_eval_after` 只接收：
@@ -85,6 +103,7 @@ theme.preview_url             # unpublished，含 ?preview_theme_id=
 - `connection.auth`：`cli_cached_admin_token`
 - `connection.storefront_session`：`access_url` | `none`
 - `products.channel_status`：`draft` | `online_store_active`
+- `brand.brief_file`，`brand.status`：`pending` | `done` | `fallback_demo`
 - `theme.preview_url`，`theme.fallback_used`
 - `geo.evidence_mode`，`geo.before_score`，`geo.after_score`
 - `geo.optimizer_status`：如 `approved_p0_batch`

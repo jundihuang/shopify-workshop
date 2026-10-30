@@ -1,0 +1,95 @@
+{
+  "brand_name": "Aurora Skincare",
+  "tagline": "A short routine for everyday skin.",
+  "audience": {
+    "primary": "Adults who want a short daily skincare routine",
+    "needs": [
+      "Plain-language ingredient notes",
+      "A few products that fit a morning and evening step",
+      "Clear limits on what a product does not do"
+    ]
+  },
+  "positioning": "Aurora Skincare keeps the routine short: a few products with named ingredients and specific use notes, for adults who want skincare copy they can check.",
+  "tone": {
+    "voice": "calm, specific, and plain-spoken",
+    "avoid": [
+      "medical claims (cure, heal, diagnose, clinically proven, FDA-approved, medical-grade)",
+      "hype or guarantees (miracle, guaranteed, overnight results, 100% effective, world's best)",
+      "before-and-after outcome promises",
+      "ingredient claims that the product page does not support"
+    ]
+  },
+  "visual": {
+    "logo": "",
+    "primary_color": "#1F4E5F",
+    "secondary_color": "#F3EDE4",
+    "image_style": "soft daylight, clean product photography, no clinical imagery"
+  },
+  "selling_points": [
+    "A three-step morning and evening routine",
+    "Ingredient names written in plain language",
+    "Use notes that say what each product is for",
+    "Quiet packaging and a limited color palette"
+  ],
+  "trust_signals": [
+    "Full ingredient list on every product",
+    "Patch-test note before first use",
+    "No outcome promises"
+  ],
+  "pages": {
+    "home": {
+      "intent": "Introduce Aurora Skincare and route shoppers to the routine collection.",
+      "sections": [
+        {
+          "id": "hero",
+          "intent": "Show the brand name, tagline, and primary color."
+        },
+        {
+          "id": "selling_points",
+          "intent": "List the four selling points as short, specific claims."
+        },
+        {
+          "id": "featured_collection",
+          "intent": "Surface the workshop skincare collection."
+        },
+        {
+          "id": "trust",
+          "intent": "Show trust signals. Do not add phrases listed in tone.avoid."
+        }
+      ]
+    },
+    "collection": {
+      "intent": "Help shoppers scan Aurora products by routine step.",
+      "sections": [
+        {
+          "id": "collection_header",
+          "intent": "Restate the positioning in one sentence."
+        },
+        {
+          "id": "product_grid",
+          "intent": "Show title, price, and one selling point per product."
+        }
+      ]
+    },
+    "product": {
+      "intent": "Explain one product with specific, non-medical copy.",
+      "sections": [
+        {
+          "id": "product_hero",
+          "intent": "Title, price, and primary image."
+        },
+        {
+          "id": "description",
+          "intent": "Use positioning and selling points. Honor tone.avoid."
+        },
+        {
+          "id": "details",
+          "intent": "Ingredient names, use notes, and trust signals."
+        }
+      ]
+    }
+  },
+  "locale": "en-US",
+  "currency": "USD",
+  "missing": []
+}

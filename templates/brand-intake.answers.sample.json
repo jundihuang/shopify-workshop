@@ -1,0 +1,32 @@
+{
+  "brand_name": "Harbor Supply",
+  "tagline": "Tools for a smaller kitchen.",
+  "description": "Harbor Supply makes a short list of kitchen tools with named materials and plain care notes.",
+  "audience": "Home cooks who want fewer tools that stay in daily use",
+  "needs": [
+    "named materials",
+    "plain care notes",
+    "compact storage"
+  ],
+  "positioning": "A small kitchen-tool brand for people who cook often and buy rarely.",
+  "tone": "calm, concrete, and unfussy",
+  "avoid": [
+    "luxury hype",
+    "lifestyle slogans without a product fact"
+  ],
+  "primary_color": "#1F3A5F",
+  "secondary_color": "#E7E1D6",
+  "logo": "",
+  "image_style": "daylight product photos on a wood or paper background",
+  "selling_points": [
+    "Named materials on every tool",
+    "Care notes written in plain language",
+    "Sizes chosen for a small kitchen"
+  ],
+  "trust_signals": [
+    "Material named in the title and description",
+    "Care note on every product"
+  ],
+  "locale": "en-US",
+  "currency": "USD"
+}
