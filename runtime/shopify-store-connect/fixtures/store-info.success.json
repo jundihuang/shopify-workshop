@@ -1,0 +1,19 @@
+{
+  "id": "gid://shopify/Shop/1000000001",
+  "displayName": "Group A Aurora",
+  "subdomain": "aurora-workshop-mvp",
+  "organizationId": "gid://shopify/Organization/2000000001",
+  "organizationName": "Workshop Preview Organization",
+  "type": "preview",
+  "country": "US",
+  "plan": "preview",
+  "accessUrl": "https://preview.example.invalid/access/session-fixture-DO-NOT-PERSIST",
+  "saveUrl": "https://preview.example.invalid/save/session-fixture-DO-NOT-PERSIST",
+  "authScopes": [
+    "write_products",
+    "write_themes",
+    "write_publications",
+    "read_products",
+    "read_themes"
+  ]
+}

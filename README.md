@@ -10,7 +10,7 @@ Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 4. 填充 Unpublished Theme 并拿到带 `?preview_theme_id=` 的 `previewUrl`  
 5. 用 Workshop 版 GEO 打分 → 批量确认 P0 优化 → 再打分  
 
-本仓库是**方案与 Skill 契约**，不是完整运行时实现。实现按 `docs/` 与各 `skills/*/SKILL.md` 落地。
+本仓库以**方案与 Skill 契约**为主。Day 2–3 已落地第一个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Workshop Step 1：创建 Preview Store、校验 scopes、写安全连接产物）。其余步骤继续按 `docs/` 与各 `skills/*/SKILL.md` 落地。
 
 ## 文档导航
 
