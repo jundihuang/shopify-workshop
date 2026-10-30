@@ -41,6 +41,28 @@ Workshop 第一步：本组还没有店，需要创建 Preview Store 并确认 A
 
 **不改挂 Dev Store，也不在课前按人数预开 Dev Store。** 不要因此去读或写 Opening soon 密码。
 
+## 运行时
+
+本 skill 的 Day 2–3 MVP 运行时在 `runtime/shopify-store-connect/`，用 Node 调用 Shopify CLI：
+
+```bash
+# Agent 已完成「确认创建」后，一次跑完 create → info → verify → 写安全产物
+./scripts/store-connect.sh connect --group-id A --name "Group A Aurora" --mode demo
+
+# 分步调试
+./scripts/store-connect.sh create --group-id A --name "Group A Aurora"
+./scripts/store-connect.sh info --group-id A
+./scripts/store-connect.sh verify --group-id A
+./scripts/store-connect.sh open --group-id A
+```
+
+- **人工确认留在 Agent**：CLI 不弹确认；Agent 必须先取得学员/讲师确认，再调用 `connect` 或 `create`。不要自动连跑下一组。
+- `info` 只在 **stdout** 返回临时 `access_url` 给调用方；不得重定向到文件、日志、Summary 或文档。`create` / `verify` / `connect` / `open` 不输出原 URL。
+- 产物固定写到 `.workshop/<group_id>/connection.json` 与 `workshop-state.yaml`；`storefront_session` 只能是句柄 `access_url`，`store_type` 只能是 `preview`，`auth` 只能是 `cli_cached_admin_token`。
+- CI / 无 Shopify CLI 时用 `--dry-run`，它只消费虚构 fixtures，不调用 Shopify，不产生真实 secret。
+- 重试排障：原命令重试 1 次 → 换展示店名 → 检查 `shopify version` / CLI 登录 / 网络代理。仍失败则暂停该组由讲师接手；不换 Dev Store，不要店面密码。
+- Shopify CLI 版本假设：已验证 5.0.0；真实命令前会探测对应子命令是否支持 `--json`，不支持则报可操作错误，不抓取人类可读输出。详见 runtime README。
+
 ## 能力清单
 
 ```text

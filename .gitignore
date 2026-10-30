@@ -36,3 +36,6 @@ build/
 # Logs
 *.log
 npm-debug.log*
+
+# Workshop runtime state
+.workshop/
