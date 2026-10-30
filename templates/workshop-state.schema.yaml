@@ -41,3 +41,12 @@ qa:
   mobile_check: pending | pass | fail
   product_schema: pending | pass | fail | restricted
   preview_open: pending | pass | fail
+
+summary:
+  status: pending | done | demo   # apply writes done; --dry-run writes demo
+  markdown: workshop-summary.md
+  html: workshop-summary.html
+  json: workshop-summary.json
+  before_score: number | null     # copied from the workshop scorecard; not rescored here
+  after_score: number | null
+  improvement: number | null      # after_score - before_score

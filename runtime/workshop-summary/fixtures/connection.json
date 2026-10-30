@@ -1,0 +1,9 @@
+{
+  "store": "aurora-workshop-mvp.myshopify.com",
+  "store_name": "Aurora Workshop",
+  "store_type": "preview",
+  "auth": "cli_cached_admin_token",
+  "scopes_ok": true,
+  "scopes_include": ["write_products", "write_themes", "write_publications"],
+  "storefront_session": "access_url"
+}

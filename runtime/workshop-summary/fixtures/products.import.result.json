@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "artifact": "products.import.result.json",
+  "dry_run": true,
+  "fake": true,
+  "default_status": "draft",
+  "shopify_status": "draft",
+  "channels_published": false,
+  "imported": 8,
+  "failed": 0,
+  "results": [
+    { "handle": "daily-serum", "title": "Serum", "status": "draft" },
+    { "handle": "night-cream", "title": "Cream", "status": "draft" },
+    { "handle": "calm-toner", "title": "Toner", "status": "draft" },
+    { "handle": "barrier-cream", "title": "Barrier cream", "status": "draft" },
+    { "handle": "face-mist", "title": "Mist", "status": "draft" },
+    { "handle": "repair-balm", "title": "Balm", "status": "draft" },
+    { "handle": "light-oil", "title": "Oil", "status": "draft" },
+    { "handle": "cotton-cloth", "title": "Cloth", "status": "draft" }
+  ]
+}

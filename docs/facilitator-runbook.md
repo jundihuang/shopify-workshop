@@ -33,6 +33,7 @@ GEO 店面用 `shopify store info` / `shopify store open` 的 `accessUrl` 会话
 - [ ] 商品升 Active + Online Store（`publishablePublish`）；主题不发布
 - [ ] Brief → 骨架 Theme → `previewUrl`（`?preview_theme_id=`）在 access 会话里可开
 - [ ] Workshop GEO before → 批 P0 → after 涨分可复现（Admin 主证据）
+- [ ] `./scripts/workshop-summary.sh apply --group-id A --confirm --dry-run` 写出 `workshop-summary.md` 和 `workshop-summary.html`，且不调用 Shopify
 - [ ] 坏 Excel / 断图 / Theme 超时 / Preview 创建失败 四类异常演练
 - [ ] 确认评测脚本没有「读取店面密码」分支
 
@@ -71,7 +72,7 @@ GEO 店面用 `shopify store info` / `shopify store open` 的 `accessUrl` 会话
 | 00:43–00:58 | Theme | 超时切 Demo Theme；`previewUrl` 仍靠该组 access 会话打开 |
 | 00:58–01:05 | GEO Before | workshop 版；Admin 主证据。禁止开完整爬虫，禁止要密码 |
 | 01:05–01:15 | 批 P0 + 精审 1–2 SKU | 禁止逐条审完全部 |
-| 01:15–01:30 | After + Summary + 收尾 | 拍照打卡；收集反馈。截图打码，避免把 accessUrl 拍进可公开材料 |
+| 01:15–01:30 | After + Summary + 收尾 | `./scripts/workshop-summary.sh apply --group-id <小组号> --confirm` 写在 geo-optimizer 之后。拍照打卡；收集反馈。截图打码，避免把 accessUrl 拍进可公开材料 |
 
 ---
 
@@ -127,6 +128,7 @@ Preview Store 默认可丢弃。每场后：
 Preview Store 已连接（唯一店路径）
 previewUrl 经 store open / accessUrl 可打开
 GEO before/after 同分口径且 after ≥ before（正常批 P0 后）
+Workshop Summary（workshop-summary.md / .html）已写出，其中没有 accessUrl
 全程没有人被要求提供 Opening soon 密码
 学员能说出：Preview Store、access 会话看店、Unpublished 预览、P0 批量 四件事
 ```

@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "artifact": "products.channel.json",
+  "store": "aurora-workshop-mvp.myshopify.com",
+  "store_type": "preview",
+  "channel_status": "online_store_active",
+  "publication_name": "Online Store",
+  "products_active": 8,
+  "theme_published": false,
+  "theme_touched": false,
+  "theme_publish_invoked": false
+}

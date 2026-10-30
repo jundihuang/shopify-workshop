@@ -123,10 +123,19 @@ shopify store create preview --name '…' --json
 
 ## Step 8 · GEO After + 成果（约 8–10 分钟）
 
+优化器写出 after 分之后，总控生成 Workshop Summary。这一步不调用 Shopify。
+
+```bash
+./scripts/workshop-summary.sh plan --group-id <小组号>
+./scripts/workshop-summary.sh apply --group-id <小组号> --confirm
+```
+
+前面步骤如果走了演练、产物还不齐，可以改跑 `apply --confirm --dry-run`。缺的文件用 fixture 补齐，页面会标明哪些数字来自演练；已经在本组目录里的 Brief、分数和主题不会被 fixture 覆盖。
+
 | 你看到什么 | 你做什么 | 确认控件 | 成功画面 |
 |---|---|---|---|
 | After Scorecard + 涨分 | 对比 before/after | — | improvement 数字 |
-| Workshop Summary | 保存 / 截图 / 收邮件（若有） | 「结束本场」 | 清单打勾（见下） |
+| Workshop Summary（`workshop-summary.md` / `.html`） | 保存 / 截图 / 收邮件（若有） | 「结束本场」 | 清单打勾（见下） |
 
 ### 小组交付清单
 

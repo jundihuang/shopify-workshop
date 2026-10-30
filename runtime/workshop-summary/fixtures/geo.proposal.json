@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "artifact": "geo.proposal.json",
+  "schema_version": "1.0",
+  "skill": "shopify-geo-optimizer",
+  "source_skill": "shopify-geo-eval-workshop",
+  "group_id": "A",
+  "store": "aurora-workshop-mvp.myshopify.com",
+  "store_type": "preview",
+  "before_score": 35,
+  "counts": { "products": 2, "suggestions": 5, "p0": 4, "p1": 1 },
+  "suggestions": [
+    {
+      "handle": "daily-serum",
+      "field": "title",
+      "before": "Serum",
+      "after": "Aurora Skincare daily serum for a short morning routine",
+      "priority": "P0",
+      "batch": true
+    },
+    {
+      "handle": "daily-serum",
+      "field": "description",
+      "before": "A serum.",
+      "after": "Aurora Skincare daily serum for a short morning routine, with plain ingredient notes.",
+      "priority": "P0",
+      "batch": true
+    },
+    {
+      "handle": "night-cream",
+      "field": "title",
+      "before": "Cream",
+      "after": "Aurora Skincare night cream for a short morning routine",
+      "priority": "P0",
+      "batch": true
+    },
+    {
+      "handle": "night-cream",
+      "field": "description",
+      "before": "A cream.",
+      "after": "Aurora Skincare night cream for a short morning routine, with one use note.",
+      "priority": "P0",
+      "batch": true
+    },
+    {
+      "handle": "daily-serum",
+      "field": "faq",
+      "before": "",
+      "after": "What is this serum for? A short morning routine.",
+      "priority": "P1",
+      "batch": false,
+      "collapsed": true
+    }
+  ]
+}
