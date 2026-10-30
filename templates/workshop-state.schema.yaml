@@ -7,8 +7,11 @@ mode: demo | hands_on
 
 connection:
   status: pending | connected | failed
+  store_type: preview | dev_fallback
   scopes_ok: boolean
-  provisioned: boolean              # v0.2: pre-provisioned mapping
+  auth: cli_cached_admin_token
+  storefront_session: access_url | none
+  # session handle only — never persist accessUrl, admin token, or storefront password
 
 products:
   source_file: string | null
@@ -32,7 +35,7 @@ geo:
   before_score: number | null
   after_score: number | null
   optimizer_status: pending | approved_p0_batch | applied | skipped
-  restrictions: list[string]        # e.g. password_store_technical_visibility
+  restrictions: list[string]        # e.g. unauthenticated_storefront_restricted, access_url_rate_limited
 
 qa:
   mobile_check: pending | pass | fail

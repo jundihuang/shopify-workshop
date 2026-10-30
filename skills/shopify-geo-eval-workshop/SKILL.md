@@ -2,7 +2,8 @@
 name: shopify-geo-eval-workshop
 description: >-
   Workshop 专用简化 GEO：5 维、5–10 SKU、5–10 分钟 Scorecard。
-  证据=Admin 主 + preview_theme_id 辅 + technical 降权。
+  商品完备性以 Admin API 为主；店面 HTML/schema 用 accessUrl（shopify store info /
+  shopify store open 会话）按需抓取。从不要求 Opening soon 店面密码。
   禁止调用完整版 shopify-geo-eval（9+7 维全站爬虫/客户 deck）。
 ---
 
@@ -22,17 +23,27 @@ description: >-
 
 ## 前置条件
 
-- Dev Store 已连接  
-- `theme.preview_url` 可用  
-- 商品已 **Active + Online Store**（编排器确认步之后）；否则只允许 Admin 层预检并明确标注「非完整店面分」  
+- Preview Store 已连接（或讲师指定的 `dev_fallback`），CLI Admin token 可用
+- 编排器传入 `store_domain`、`storefront_session=access_url`（句柄，不是把 URL 贴进提示词），以及 `theme.preview_url`（`?preview_theme_id=`）
+- 商品已 **Active + Online Store**（编排器确认步之后）；否则只允许 Admin 层预检，并标明「非完整店面分」
 
-## 证据模式（建议）
+没有店面密码输入。调用方如果只提供了密码、没有 accessUrl 会话，拒绝该凭证并改走 Admin。
+
+## 证据模式
 
 ```text
-A Admin API     — 主：字段完备、SEO、属性
-B Preview HTML  — 辅：?preview_theme_id= + 密码会话，schema/结构
-C Technical     — 降权：robots/sitemap/products.json（密码店可 restricted）
+A Admin API      — 主：字段完备、SEO、属性、媒体、publications
+B accessUrl HTML — 按需：shopify store info / shopify store open 的会话
+                    + ?preview_theme_id= ，抓 schema / 页面结构
+C Technical      — 降权：未登录 robots 200、/products.json 401、sitemap 常 404
 ```
+
+抓 B 的规则：
+
+- 只用当次 CLI 会话里的 `accessUrl`。用完即弃，不写入 scorecard 文件。
+- 遇到 **429**：退避重试，有限次数。仍失败则 `evidence_mode=admin_only`，`restrictions` 加上 `access_url_rate_limited`。
+- 会话过期：请编排器重新 `shopify store open` 或 `shopify store info`，然后重试 B。不要改问密码。
+- 未登录直接抓 `*.myshopify.com` 会得到 Opening soon / 401 / 404，不能当作 B 的成功。
 
 详见仓库 `docs/research-preview-geo.md`。
 
@@ -46,17 +57,22 @@ C Technical     — 降权：robots/sitemap/products.json（密码店可 restric
 | Purchase Trust | 15% |
 | Technical Visibility | 10% |
 
-总分 100；等级 A+/A/B/C/D 同方案。商品层权重见方案 §5.6。
+总分 100；等级 A+/A/B/C/D 同方案。商品层权重见方案 §5.6。  
+Product Data Completeness 只依赖 A。B 缺失时 Search / AI / Trust 用 Admin 能覆盖的部分给分，并在 restrictions 说明 HTML 未取到。Technical 在未登录 401/404 时封顶或标 restricted。
 
 ## 输出
 
 符合 `templates/geo-score.schema.json`：
 
-- `geo_score`, `grade`, `dimensions`, `top_issues`, `products[]`  
-- `evidence_mode`, `restrictions[]`  
-- 每 issue 带 `priority`: P0/P1/P2  
+- `geo_score`, `grade`, `dimensions`, `top_issues`, `products[]`
+- `evidence_mode`：`hybrid_admin_preview`（A+B）或 `admin_only`
+- `restrictions[]`：例如 `unauthenticated_storefront_restricted`、`access_url_rate_limited`
+- 每 issue 带 `priority`: P0/P1/P2
+
+输出里可以有店铺域名和 `preview_url`。禁止出现 accessUrl、Admin token、店面密码。
 
 ## 验收
 
-- 时限内出分；前后可比  
-- 样本 ≤10 SKU；无全站爬虫  
+- 时限内出分；前后可比
+- 样本 ≤10 SKU；无全站爬虫
+- 实现中不存在「从 Admin 读取 Opening soon 密码」或调用 `onlineStorePasswordProtectionUpdate` 的步骤

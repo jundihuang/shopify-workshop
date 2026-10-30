@@ -2,7 +2,9 @@
 
 给**现场学员**看的一步一步说明。Agent / 讲师侧细节见各 Skill 与 [facilitator-runbook.md](facilitator-runbook.md)。
 
-约定：每组 2–4 人；一台主操作电脑 + 共享屏幕；对话式 Agent（ShopWright）引导。
+约定：每组 2–4 人；一台主操作电脑 + 共享屏幕；对话式 Agent（ShopWright）引导。一组一家店。
+
+店面鉴权与创建命令的依据：[research-preview-geo.md](research-preview-geo.md)、[dry-run-preview-store-2026-10-30.md](dry-run-preview-store-2026-10-30.md)。
 
 ---
 
@@ -10,9 +12,9 @@
 
 | 你看到什么 | 你做什么 | 成功画面 |
 |---|---|---|
-| 小组号卡片（A/B/C…）与 Dev Store 域名 | 记住小组号；打开讲师发的聊天 / 页面 | 知道自己是哪一组、店是哪个 |
+| 小组号卡片（A/B/C…）、Excel 模板、「不要连接自己的正式店」 | 记住小组号；打开讲师发的聊天 / 页面 | 知道自己是哪一组 |
 
-连接与授权由讲师课前完成。学员**不**现场跑 OAuth。
+不需要已有 Shopify / Partner 账号。讲师**不**预发每组一家 Dev Store，也**不**发 Opening soon 店面密码。店在 Step 1 现场创建。
 
 ---
 
@@ -24,15 +26,24 @@
 
 ---
 
-## Step 1 · 选组并确认店铺（约 5 分钟）
+## Step 1 · 创建 Preview Store（约 5 分钟）
 
 **Skill：** `shopify-store-connect`
 
+Agent 在本组机器上执行：
+
+```bash
+shopify store create preview --name '…' --json
+```
+
+`--name` 用小组号加 Demo 品牌名。CLI 缓存 Admin API token（scopes 含 `write_products`、`write_themes`、`write_publications`）。接着 `shopify store info` 拿到店铺域名和 `accessUrl` 会话。
+
 | 你看到什么 | 你做什么 | 确认控件 | 成功画面 |
 |---|---|---|---|
-| 「选择小组」列表 | 点本组（如 Group A） | 「确认连接」 | 显示店名、商品数、scopes_ok=true、密码店提示 |
+| 「正在创建 Preview Store」与店名确认 | 看店名是否是本组的 | 「确认连接」 | 显示 `*.myshopify.com`、`store_type=preview`、scopes_ok=true |
+| `shopify store open` / access 流程（可能弹出浏览器或访问链接） | 跟着打开，确认能看见店面而不是停在要你输入密码 | — | 会话可用；状态里只记会话句柄，不记 accessUrl 原文 |
 
-掉队：联系讲师换备用预置店（见 Runbook）。
+创建失败：联系讲师。讲师可改挂 **fallback Dev Store**（见 Runbook）。不要改连自己的正式店，也不要找人要店面密码。
 
 ---
 
@@ -68,20 +79,20 @@
 | 你看到什么 | 你做什么 | 确认控件 | 成功画面 |
 |---|---|---|---|
 | 「基于骨架填充主题」说明（不是从零生成） | 确认用本组 Brief | 「创建 Unpublished Theme」 | 进度条；或超时提示切 Fallback |
-| `preview_url` 链接 | 打开链接；输入 Dev Store 密码（讲师公布） | — | Home / Collection / Product 可预览 |
+| `previewUrl`（带 `?preview_theme_id=`） | 用 **`shopify store open` 或 Step 1 的 accessUrl 会话**打开；未登录裸开会停在 Opening soon | — | Home / Collection / Product 可预览 |
 | 移动端检查提示 | 快速扫一眼手机宽度 | 「预览 OK，继续」 | theme_id + unpublished 记入状态 |
 
-失败：讲师启用预置 Demo Theme 的 `preview_url`，本组 Brief 文案可后补。
+失败：讲师启用预置 Demo Theme 的 `previewUrl`，本组 Brief 文案可后补。打开方式仍然是 store open / accessUrl。
 
 ---
 
 ## Step 5 · 商品上架到渠道（GEO 前，约 3 分钟）
 
-**说明：** 纯 Draft 无法做店面层 GEO。需一次确认把商品升为 Active 并发布到 Online Store；**主题仍不发布**。
+**说明：** 纯 Draft 没有店面商品页。需一次确认把商品升为 Active 并发布到 Online Store。**主题仍不发布。** 未登录访客仍会看到 Opening soon；本组看店面继续用 accessUrl 会话。
 
 | 你看到什么 | 你做什么 | 确认控件 | 成功画面 |
 |---|---|---|---|
-| 「为 GEO 演示：发布商品到 Online Store（店仍有密码）」 | 读风险一句 | 「确认发布商品到渠道」 | 商品 status=active，渠道含 Online Store |
+| 「为 GEO 演示：发布商品到 Online Store」 | 读风险一句 | 「确认发布商品到渠道」 | 商品 status=active，渠道含 Online Store |
 
 ---
 
@@ -92,7 +103,7 @@
 | 你看到什么 | 你做什么 | 确认控件 | 成功画面 |
 |---|---|---|---|
 | Scorecard：总分、5 维、Top Issues、商品分 | 看 P0 列表 | — | before_score 写入状态 |
-| 证据说明：Admin 主 + Preview 辅 | 理解密码店限制 | 「进入优化」 | — |
+| 证据说明：Admin 主；HTML/schema 用 accessUrl 会话 | 知道未登录爬店会 401，评测不会向你要店面密码 | 「进入优化」 | — |
 
 ---
 
@@ -120,9 +131,9 @@
 ### 小组交付清单
 
 ```text
-[ ] 已连接 Dev Store
-[ ] 5–10 个商品（Active + Online Store，密码店）
-[ ] 1 个 Unpublished Theme + preview_url
+[ ] 已创建并连接 Preview Store（store_type=preview）
+[ ] 5–10 个商品（Active + Online Store）
+[ ] 1 个 Unpublished Theme + previewUrl（经 store open / accessUrl 打开过）
 [ ] Brand Brief
 [ ] GEO Before / After Score
 [ ] 已批准的 P0 变更摘要
@@ -134,11 +145,11 @@
 ## 学员心理路径（给设计 UI 用）
 
 ```text
-我不懂 Shopify
-  → 原来店已经连好了，我只要选组
+我不懂 Shopify，也没有 Partner 账号
+  → Agent 帮我创建 Preview Store，我确认店名并跟着 store open
   → Excel 很熟，导入有预览不怕写坏
   → Brief 像填表，不是写代码
-  → 主题是「换皮」不是「从零做站」
-  → GEO 分数像游戏，一键修 P0 就涨分
-  → 我带走链接和 Summary，知道回去怎么跟团队讲
+  → 主题是「换皮」不是「从零做站」；用 access 会话看预览
+  → GEO 分数像游戏，一键修 P0 就涨分；它读的是后台数据，不问我要密码
+  → 我带走 preview 链接和 Summary，知道回去怎么跟团队讲
 ```

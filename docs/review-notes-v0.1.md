@@ -1,5 +1,7 @@
 # ShopWright Workshop Skills 方案 — v0.1 审查笔记
 
+> **已被后续决策覆盖的两点：**「课前按人数预开 Dev Store」和「用 Opening soon 密码抓店面」都不再是 Workshop 方案。现行架构见 [ShopWright-Workshop-Skills-方案-v0.2.md](ShopWright-Workshop-Skills-方案-v0.2.md) §1.2、[research-preview-geo.md](research-preview-geo.md)、[dry-run-preview-store-2026-10-30.md](dry-run-preview-store-2026-10-30.md)：主路径是现场 `shopify store create preview`；GEO 店面走 `accessUrl` / `shopify store open`。下文保留为 2026-10-30 对 v0.1 的审查记录。
+
 审查视角：**现场陌生人 90 分钟能上手**（Workshop = 动手课，不是听 PPT）。
 
 审查时间参考：2026-10-30（Asia/Shanghai）。
@@ -10,7 +12,7 @@ v0.1 可作为产品蓝图，**还不能当现场操作手册**。更像 Agent �
 
 ## 做得好的地方
 
-- 只写 Dev Store / Draft / Unpublished，写入必确认——控风险方向正确。
+- 只写非客户正式店、Draft、Unpublished，写入必确认——控风险方向正确。v0.1 把「非客户店」写成 Dev Store；现行主路径已改为 Preview Store（见文首）。
 - 7 步流水线 + 人工确认点，与 90 分钟节奏有对应。
 - MVP 切片、Dry Run、成功标准齐全。
 
@@ -30,9 +32,9 @@ v0.1 可作为产品蓝图，**还不能当现场操作手册**。更像 Agent �
 
 ### 3. 连接店铺是最大掉队点
 
-「3 分钟连上 + scopes」对非开发者不现实。应默认课前预开 Dev Store + 预授权；自助 OAuth 当加分项。
+「3 分钟连上 + scopes」对非开发者不现实。审查当时建议课前预开 Dev Store。该建议已被 §1.2 取代：现场 `shopify store create preview`，CLI 缓存 Admin token；Dev Store 只作讲师 fallback。自助 OAuth 仍然不是主路径。
 
-→ v0.2：`shopify-store-connect` 主路径 = 选小组 / 校验预置连接。
+→ 现行：`shopify-store-connect` 主路径 = 创建 Preview Store 并校验 CLI 会话。
 
 ### 4. Theme 20 分钟从零生成过满
 
@@ -62,12 +64,12 @@ Home/Collection/Product/About/Contact/Policy + 导航 + 移动端，LLM/API 一�
 
 1. 写清 GEO 证据源（混合模型：Admin 主 + Preview 辅 + 技术可见性降权）。
 2. 学员操作旅程一页。
-3. 连接 = 课前预置为主。
+3. 连接不让学员现场 OAuth。（预开 Dev Store 这一条已被 Preview Store 主路径取代，见文首。）
 4. Theme = 骨架填充 + 预置 Fallback。
 5. GEO 确认 = 批量 P0 + 1–2 商品精审。
 
-## 未决（待 Dry Run）
+## 未决（dry run 之后仍开放）
 
-- Dev Store 密码页下，带 `preview_theme_id` 的 HTML/schema 抓取稳定性。
-- Active + Online Store 后 `/products.json` 与密码页的实际行为组合。
-- 现场网络下 theme push / 图片拉取超时阈值。
+密码路径已关闭：Admin 读得到 `onlineStore.passwordProtection.enabled=true`，读不到明文，且没有 `onlineStorePasswordProtectionUpdate`。GEO 不使用 Opening soon 密码。
+
+仍待实测的是：浏览器内 `store open` 之后商品页 HTML / schema、`seo.title` 写回、accessUrl 过期后的 `store open` 恢复、429 重试，以及现场网络下 theme push / 图片拉取超时阈值。见 [dry-run-preview-store-2026-10-30.md](dry-run-preview-store-2026-10-30.md)。
