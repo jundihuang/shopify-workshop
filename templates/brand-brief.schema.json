@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://beansmile.local/schemas/brand-brief.json",
+  "title": "ShopWright Brand Brief",
+  "type": "object",
+  "required": ["brand_name", "tagline", "audience", "positioning", "tone", "visual", "selling_points", "locale", "currency"],
+  "properties": {
+    "brand_name": { "type": "string" },
+    "tagline": { "type": "string" },
+    "audience": {
+      "type": "object",
+      "required": ["primary"],
+      "properties": {
+        "primary": { "type": "string" },
+        "needs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "positioning": { "type": "string" },
+    "tone": {
+      "type": "object",
+      "properties": {
+        "voice": { "type": "string" },
+        "avoid": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "visual": {
+      "type": "object",
+      "properties": {
+        "logo": { "type": "string" },
+        "primary_color": { "type": "string" },
+        "secondary_color": { "type": "string" },
+        "image_style": { "type": "string" }
+      }
+    },
+    "selling_points": { "type": "array", "items": { "type": "string" } },
+    "trust_signals": { "type": "array", "items": { "type": "string" } },
+    "pages": {
+      "type": "object",
+      "properties": {
+        "home": { "type": "object" },
+        "collection": { "type": "object" },
+        "product": { "type": "object" }
+      }
+    },
+    "locale": { "type": "string" },
+    "currency": { "type": "string" },
+    "missing": { "type": "array", "items": { "type": "string" } }
+  }
+}

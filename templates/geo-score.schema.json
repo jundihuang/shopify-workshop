@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://beansmile.local/schemas/geo-score-workshop.json",
+  "title": "ShopWright Workshop GEO Scorecard",
+  "type": "object",
+  "required": ["store", "geo_score", "grade", "dimensions", "evidence_mode"],
+  "properties": {
+    "store": { "type": "string" },
+    "geo_score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "grade": { "type": "string", "enum": ["A+", "A", "B", "C", "D"] },
+    "evidence_mode": {
+      "type": "string",
+      "enum": ["hybrid_admin_preview", "admin_only"]
+    },
+    "restrictions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "e.g. password_store_limits_technical_visibility"
+    },
+    "preview_url": { "type": "string" },
+    "dimensions": {
+      "type": "object",
+      "required": [
+        "product_data_completeness",
+        "search_findability",
+        "ai_understandability",
+        "purchase_trust",
+        "technical_visibility"
+      ],
+      "properties": {
+        "product_data_completeness": { "type": "number" },
+        "search_findability": { "type": "number" },
+        "ai_understandability": { "type": "number" },
+        "purchase_trust": { "type": "number" },
+        "technical_visibility": { "type": "number" }
+      }
+    },
+    "top_issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["issue", "impact", "priority"],
+        "properties": {
+          "issue": { "type": "string" },
+          "impact": { "type": "string" },
+          "priority": { "type": "string", "enum": ["P0", "P1", "P2"] }
+        }
+      }
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["handle", "score"],
+        "properties": {
+          "handle": { "type": "string" },
+          "score": { "type": "number" },
+          "issues": { "type": "array", "items": { "type": "string" } },
+          "priority": { "type": "string", "enum": ["P0", "P1", "P2"] },
+          "missing_fields": { "type": "array", "items": { "type": "string" } },
+          "schema_status": { "type": "string" },
+          "seo_status": { "type": "string" },
+          "ai_readability_status": { "type": "string" }
+        }
+      }
+    },
+    "skill": {
+      "type": "string",
+      "const": "shopify-geo-eval-workshop"
+    }
+  }
+}
