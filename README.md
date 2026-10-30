@@ -10,7 +10,7 @@ Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 4. 填充 Unpublished Theme 并拿到带 `?preview_theme_id=` 的 `previewUrl`  
 5. 用 Workshop 版 GEO 打分 → 批量确认 P0 优化 → 再打分  
 
-本仓库以**方案与 Skill 契约**为主，已落地两个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）与 [runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）。其余步骤继续按 `docs/` 与各 `skills/*/SKILL.md` 落地。
+本仓库以**方案与 Skill 契约**为主，已落地三个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）与 [runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（GEO 前人工确认：商品 Active + Online Store，Theme 保持 Unpublished）。其余步骤继续按 `docs/` 与各 `skills/*/SKILL.md` 落地。
 
 商品导入主 Demo 使用合作伙伴 [INFLATION / inflationwear.com](https://inflationwear.com/collections/tshirt) 的公开商品样例（8 SKU）：
 
@@ -30,6 +30,16 @@ Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 ```
 
 导入固定写 Draft，不发布 Online Store 或其他销售渠道。
+
+GEO 演示前的渠道发布是独立的人工确认步骤（不并入 import）：
+
+```bash
+./scripts/publish-products-for-geo.sh plan --group-id A
+./scripts/publish-products-for-geo.sh apply --group-id A --confirm
+./scripts/publish-products-for-geo.sh apply --group-id A --confirm --dry-run
+```
+
+它只接受 Preview Store，必须带 `--confirm`，把本组导入商品设为 Active 并发布到 Online Store，但**永不发布 Theme**，也不持久化 `accessUrl`。`--dry-run` 不访问 Shopify。
 
 ## 文档导航
 

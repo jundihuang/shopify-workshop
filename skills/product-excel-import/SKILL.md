@@ -45,6 +45,12 @@ SEO/GEO：`seo_title seo_description faq brand gtin mpn material color size goog
 - 源表里的 `status` 会被安全地强制为 `draft`，并产生 warning
 - GEO 演示前由 orchestrator 调用「发布到 Online Store」确认步（不在本 skill 的导入命令内）
 
+## 下一步（GEO 前人工确认）
+
+导入结果保持 Draft。需要为 GEO 演示发布渠道时，由 orchestrator 调用独立运行时
+`scripts/publish-products-for-geo.sh`（先 `plan`，人工确认后 `apply --confirm`）；
+该步骤会设 Active + Online Store，但不会发布 Theme。不要把它并入 import 命令。
+
 ## 运行时
 
 实现位于 `runtime/product-excel-import/`，入口为 `scripts/product-excel-import.sh`。
