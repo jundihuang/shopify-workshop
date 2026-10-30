@@ -1,0 +1,38 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# Local secrets & workshop runtime
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+tokens/
+secrets/
+workshop-state/
+runs/
+tmp/
+.cache/
+
+# Node / Python
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/
+
+# Excel / binary scratch (keep templates/*.md and sample csv)
+*.xlsx
+!templates/*.xlsx
+*.xls
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,40 @@
+# Workshop per-group state (documentation schema; not a runtime validator)
+# File name: workshop-state.yaml
+
+group_id: string                    # e.g. A
+store_domain: string                # e.g. workshop-a.myshopify.com
+mode: demo | hands_on
+
+connection:
+  status: pending | connected | failed
+  scopes_ok: boolean
+  provisioned: boolean              # v0.2: pre-provisioned mapping
+
+products:
+  source_file: string | null
+  imported: number
+  failed: number
+  status: pending | done | failed
+  channel_status: draft | online_store_active
+
+brand:
+  brief_file: string | null
+  status: pending | done | fallback_demo
+
+theme:
+  theme_id: number | null
+  status: none | unpublished | fallback
+  preview_url: string | null        # https://{store}/?preview_theme_id={id}
+  fallback_used: boolean
+
+geo:
+  evidence_mode: hybrid_admin_preview | admin_only
+  before_score: number | null
+  after_score: number | null
+  optimizer_status: pending | approved_p0_batch | applied | skipped
+  restrictions: list[string]        # e.g. password_store_technical_visibility
+
+qa:
+  mobile_check: pending | pass | fail
+  product_schema: pending | pass | fail | restricted
+  preview_open: pending | pass | fail
