@@ -1,6 +1,6 @@
 # ShopWright Workshop Skills 方案 — v0.1 审查笔记
 
-> **已被后续决策覆盖的两点：**「课前按人数预开 Dev Store」和「用 Opening soon 密码抓店面」都不再是 Workshop 方案。现行架构见 [ShopWright-Workshop-Skills-方案-v0.2.md](ShopWright-Workshop-Skills-方案-v0.2.md) §1.2、[research-preview-geo.md](research-preview-geo.md)、[dry-run-preview-store-2026-10-30.md](dry-run-preview-store-2026-10-30.md)：主路径是现场 `shopify store create preview`；GEO 店面走 `accessUrl` / `shopify store open`。下文保留为 2026-10-30 对 v0.1 的审查记录。
+> **已被后续决策覆盖的两点：**「课前按人数预开 Dev Store」和「用 Opening soon 密码抓店面」都不再是 Workshop 方案。现行架构见 [ShopWright-Workshop-Skills-方案-v0.2.md](ShopWright-Workshop-Skills-方案-v0.2.md) §1.2、[research-preview-geo.md](research-preview-geo.md)、[dry-run-preview-store-2026-10-30.md](dry-run-preview-store-2026-10-30.md)：Workshop 只保留 Preview Store 一条店路径，现场 `shopify store create preview`；不设 Dev Store fallback；GEO 店面走 `accessUrl` / `shopify store open`。下文保留为 2026-10-30 对 v0.1 的审查记录。
 
 审查视角：**现场陌生人 90 分钟能上手**（Workshop = 动手课，不是听 PPT）。
 
@@ -8,7 +8,7 @@
 
 ## 结论
 
-v0.1 可作为产品蓝图，**还不能当现场操作手册**。更像 Agent 能力清单；缺学员旅程、失败 Fallback，以及 Draft / Unpublished 与公开 GEO 评分的自洽规则。
+v0.1 可作为产品蓝图，**还不能当现场操作手册**。更像 Agent 能力清单；缺学员旅程、失败处理，以及 Draft / Unpublished 与公开 GEO 评分的自洽规则。
 
 ## 做得好的地方
 
@@ -32,7 +32,7 @@ v0.1 可作为产品蓝图，**还不能当现场操作手册**。更像 Agent �
 
 ### 3. 连接店铺是最大掉队点
 
-「3 分钟连上 + scopes」对非开发者不现实。审查当时建议课前预开 Dev Store。该建议已被 §1.2 取代：现场 `shopify store create preview`，CLI 缓存 Admin token；Dev Store 只作讲师 fallback。自助 OAuth 仍然不是主路径。
+「3 分钟连上 + scopes」对非开发者不现实。审查当时建议课前预开 Dev Store。该建议已被 §1.2 取代：现场 `shopify store create preview`，CLI 缓存 Admin token；Preview Store 是唯一店路径，不设 Dev Store fallback。自助 OAuth 仍然不是主路径。
 
 → 现行：`shopify-store-connect` 主路径 = 创建 Preview Store 并校验 CLI 会话。
 
@@ -54,7 +54,7 @@ Home/Collection/Product/About/Contact/Policy + 导航 + 移动端，LLM/API 一�
 
 → v0.2 独立 skill：`shopify-geo-eval-workshop`（简化 5 维、5–10 SKU、禁止全站爬虫）。
 
-### 7. 讲师 Runbook / Fallback 不够可执行
+### 7. 讲师 Runbook / 现场排障不够可执行
 
 风险表有了，缺：小组数、店重置、坏 Excel、挂图、Theme 超时切哪套预览。
 
@@ -64,8 +64,8 @@ Home/Collection/Product/About/Contact/Policy + 导航 + 移动端，LLM/API 一�
 
 1. 写清 GEO 证据源（混合模型：Admin 主 + Preview 辅 + 技术可见性降权）。
 2. 学员操作旅程一页。
-3. 连接不让学员现场 OAuth。（预开 Dev Store 这一条已被 Preview Store 主路径取代，见文首。）
-4. Theme = 骨架填充 + 预置 Fallback。
+3. 连接不让学员现场 OAuth。（课前预开 Dev Store 这一条已被 Preview Store 唯一店路径取代，见文首。）
+4. Theme = 骨架填充 + 预置 Demo Theme Fallback。
 5. GEO 确认 = 批量 P0 + 1–2 商品精审。
 
 ## 未决（dry run 之后仍开放）

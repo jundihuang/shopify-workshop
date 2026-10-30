@@ -3,7 +3,7 @@ name: shopify-store-connect
 description: >-
   为一组创建 Shopify Preview Store（shopify store create preview）并用 CLI 缓存的
   Admin API token 连接。校验 scopes，用 shopify store info / store open 取得 accessUrl
-  会话句柄。Dev Store 仅讲师 fallback。不读取、不设置店面密码。
+  会话句柄。Preview Store 是唯一店路径；不设 Dev Store fallback。不读取、不设置店面密码。
 ---
 
 # shopify-store-connect
@@ -27,13 +27,19 @@ Workshop 第一步：本组还没有店，需要创建 Preview Store 并确认 A
 
 创建约 10 秒量级，不需要学员已有 Partner 账号或信用卡。
 
-**不要**把「学员现场 OAuth」或「课前按人数预开 Dev Store」当主路径。
+**不要**把「学员现场 OAuth」当路径，也不要课前按人数预开 Dev Store 或改挂 Dev Store。
+本 skill 只创建并使用 Preview Store（`store_type=preview`）。
 
-### 讲师 fallback
+### 创建失败：现场排障
 
-`store create preview` 失败时，编排器可改挂**讲师已经持有**的 Dev Store（`store_type=dev_fallback`）。  
-fallback 店同样用 `shopify store info` / `shopify store open` 取得 accessUrl 会话。  
-不要因此去读或写 Opening soon 密码。
+`shopify store create preview` 失败时按顺序处理：
+
+1. 原命令重试一次（排除瞬时网络/CLI 错误）。
+2. 换一个展示店名后重试。
+3. 检查 Shopify CLI 版本与登录状态、尝试重新登录 CLI、检查教室网络/代理。
+4. 仍失败则该组暂停，由讲师接手协助；恢复 Preview Store 后再继续后续步骤。
+
+**不改挂 Dev Store，也不在课前按人数预开 Dev Store。** 不要因此去读或写 Opening soon 密码。
 
 ## 能力清单
 
@@ -51,7 +57,7 @@ optional: write_draft_product_smoke_test
 
 ## 安全边界
 
-- 主路径 `store_type=preview`。`dev_fallback` 只能由讲师显式指定。
+- 只创建 Preview Store，`store_type` 固定为 `preview`。不存在其他店类型，不设 Dev Store fallback。
 - 拒绝学员自己的正式店。
 - 禁止写 live/Online Theme。
 - 禁止读订单 / 客户 PII。
@@ -83,4 +89,4 @@ optional: write_draft_product_smoke_test
 
 - 确认后约 1 分钟内得到 `scopes_ok`（创建本身 dry run 约 10 秒）。
 - 状态里有店铺域名和 `storefront_session=access_url`，没有店面密码字段，没有 accessUrl 字符串。
-- 失败时返回可操作错误 + 建议「请讲师改挂 fallback Dev Store」。
+- 失败时返回可操作错误与现场排障步骤（重试、换店名、查 CLI/网络）；必要时暂停该组由讲师协助，不改挂 Dev Store。

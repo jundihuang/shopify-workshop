@@ -35,16 +35,16 @@ shopify-geo-optimizer
 5. **文档**：学员旅程、讲师 Runbook、调研结论。
 6. **节奏**：连接缩短；Theme 缩短；插入「发布商品到渠道」；GEO 时间盒收紧。
 
-连接方式与店面鉴权以 §1.2 为准。v0.2 初稿里的「课前预置 Dev Store」和「把店面密码交给 GEO」作废。
+连接方式与店面鉴权以 §1.2 为准。v0.2 初稿里的「课前预置 Dev Store」「Preview 失败改挂 Dev Store 讲师 fallback」和「把店面密码交给 GEO」均作废。
 
 ### 1.2 决策更新（2026-10-30）：Preview Store + accessUrl
 
 Owner：Jayce。依据：[dry-run-preview-store-2026-10-30.md](dry-run-preview-store-2026-10-30.md)。
 
-Workshop 不能给每位学员一家 Partner Dev Store。锁定如下：
+Workshop 不能给每位学员一家 Partner Dev Store。Workshop 只保留 Preview Store 一条店路径，锁定如下：
 
-1. **主路径 = Preview Store。** 每组现场执行 `shopify store create preview --name '…' --json`。不需要已有 Partner 账号或信用卡。CLI 缓存 Admin API token。dry run 所见 authScopes **包含** `write_products`、`write_themes`、`write_publications`。
-2. **Dev Store = 讲师 fallback only。** 仅当 Preview 创建失败时，改挂讲师已经持有的备用店。不课前按人数预开 Dev Store。
+1. **唯一店路径 = Preview Store。** 每组现场执行 `shopify store create preview --name '…' --json`。不需要已有 Partner 账号或信用卡。CLI 缓存 Admin API token。dry run 所见 authScopes **包含** `write_products`、`write_themes`、`write_publications`。
+2. **不设 Dev Store fallback。** Preview 创建失败时现场排障：重试 `shopify store create preview`、换店名、查 CLI/网络；必要时该组暂停并由讲师协助。不改挂 Dev Store，也不课前按人数预开 Dev Store。
 3. **GEO 证据 = Admin API（主）+ accessUrl 会话（店面 HTML/schema，按需）。** 商品完备性以 Admin 为准。需要 HTML/schema 时，用 `shopify store info` / `shopify store open` 的 `accessUrl`。学员可以看到 access / open 流程。
 4. **Opening soon 密码不进入系统。** 未登录的 `*.myshopify.com` 是密码页；`/products.json` 为 401；sitemap 常为 404。Admin 上 `onlineStore.passwordProtection.enabled` 为 true，但密码明文不可读，且 `onlineStorePasswordProtectionUpdate` 不存在。禁止设计「用 Admin 读取或设置店面密码再交给 GEO」。
 5. **Theme** 仍是 `theme push --unpublished`，`previewUrl` 带 `?preview_theme_id=`。打开方式是 store open / accessUrl 会话。
@@ -90,8 +90,8 @@ Workshop 不能给每位学员一家 Partner Dev Store。锁定如下：
 
 ## 3. 边界与安全规则
 
-- 主路径只创建 **Preview Store**（`shopify store create preview`）。拒绝学员自己的正式店。
-- **Dev Store 仅讲师 fallback**（Preview 创建失败时改挂讲师已有的店）。
+- 只创建并使用 **Preview Store**（`shopify store create preview`，唯一店路径）。拒绝学员自己的正式店。
+- 不设 Dev Store fallback，也不课前按人数预开 Dev Store。Preview 创建失败时现场排障，必要时该组暂停并由讲师协助。
 - Theme 只写 **Unpublished**。`previewUrl` 带 `?preview_theme_id=`。学员用 `shopify store open` 或 accessUrl 会话打开。
 - 商品：导入默认 **Draft**；GEO 演示经确认后可 **Active + Online Store**。未登录访客仍看到 Opening soon。
 - **不** Publish Theme 到 live。
@@ -147,7 +147,7 @@ mode: hands_on
 
 connection:
   status: connected
-  store_type: preview          # preview | dev_fallback
+  store_type: preview          # 固定值；Preview Store 是唯一店路径
   scopes_ok: true
   auth: cli_cached_admin_token
   storefront_session: access_url   # 句柄；文件中不写 accessUrl 原文
@@ -200,10 +200,10 @@ start
 
 #### 人工确认点
 
-1. 确认创建并连接 Preview Store（失败时改为确认讲师 fallback）  
+1. 确认创建并连接 Preview Store（失败时现场排障；必要时该组暂停）
 2. Excel 导入  
 3. Brand Brief 锁定  
-4. Theme 创建（或启用 Fallback）  
+4. Theme 创建（或启用 Demo Theme Fallback）
 5. **商品发布到 Online Store（GEO 前）**  
 6. **批准全部 P0**（及可选精审）  
 7. 最终成果生成  
@@ -228,7 +228,7 @@ start
 ```text
 group_id
 store_name          # shopify store create preview --name
-# 失败时讲师可改传 store_type=dev_fallback 与已有店的域名
+# Preview 创建失败：现场重试、换店名、查 CLI/网络；必要时该组暂停
 ```
 
 #### 第一版能力
@@ -265,7 +265,7 @@ optional: write_draft_product_smoke_test
 
 #### 安全边界
 
-- 主路径只创建 Preview Store。`dev_fallback` 必须由讲师显式指定。
+- 只创建 Preview Store；`store_type` 固定为 `preview`。不设 Dev Store fallback。
 - 拒绝学员正式店。
 - 禁止写 Online（live）Theme。
 - 禁止读取客户订单。
@@ -278,7 +278,7 @@ optional: write_draft_product_smoke_test
 - **确认后约 1 分钟内**校验完成（创建本身 dry run 约 10 秒；不要求学员自助 OAuth）。
 - 能读取商品和主题。
 - 状态含域名与 `storefront_session=access_url`，不含密码、不含 accessUrl 字符串。
-- 失败时编排器提示改挂讲师 fallback Dev Store。
+- 失败时返回可操作错误与现场排障建议（重试 `shopify store create preview`、换店名、检查 CLI/网络）；必要时暂停该组由讲师协助，不改挂 Dev Store。
 
 ---
 
@@ -584,7 +584,7 @@ Workshop 版裁剪见 §5.6 表。定位：
 /workshop-state.yaml
 ```
 
-关键字段：`store_type`, `auth`, `storefront_session`（句柄）, `preview_url`, `channel_status`, `evidence_mode`, `fallback_used`, `optimizer_status: approved_p0_batch`。不保存 `provisioned` 映射，不保存店面密码，不保存 accessUrl 原文。
+关键字段：`store_type`（固定 `preview`）, `auth`, `storefront_session`（句柄）, `preview_url`, `channel_status`, `evidence_mode`, `fallback_used`, `optimizer_status: approved_p0_batch`。不保存 `provisioned` 映射，不保存店面密码，不保存 accessUrl 原文。
 
 ---
 
@@ -613,7 +613,7 @@ Workshop 版裁剪见 §5.6 表。定位：
 ```text
 shopify store create preview --name '…' --json
 CLI 缓存 Admin token；校验 scopes
-失败则讲师 dev_fallback
+失败则现场排障：重试/换店名/查 CLI 与网络；必要时该组暂停由讲师协助（不改挂 Dev Store）
 记录域名 + storefront_session=access_url（不落 URL）
 ```
 
@@ -694,7 +694,7 @@ geo before → optimizer → after
 
 ```text
 完整 Demo 品牌、5–10 SKU、
-previewUrl、前后分、Fallback 演练
+previewUrl、前后分、业务 Fallback 演练（坏 Excel / 断图 / Theme 超时）
 结论写入 dry-run 笔记与 research「仍待实测」
 ```
 
@@ -704,14 +704,14 @@ previewUrl、前后分、Fallback 演练
 
 | 风险 | 对策 |
 |---|---|
-| Preview 创建失败 | 讲师已有 Dev Store 作 fallback；不为每人新开 Partner 店 |
+| Preview 创建失败 | 现场排障：重试 `shopify store create preview`、换店名、查 CLI/网络；必要时该组暂停由讲师协助；不改挂 Dev Store，也不课前预开 |
 | Excel 不一致 | 固定模板 + 样例包 |
 | 图片不可访问 | 预置 Demo 图开关 |
 | Theme 太慢 | 骨架 + Demo Theme Fallback |
 | Draft 无法店面评分 | GEO 前确认发布到 Online Store |
 | 完整版 GEO 拖死现场 | 只允许 `shopify-geo-eval-workshop` |
 | GEO 建议审不完 | 批准全部 P0 + 1–2 精审 |
-| 误写学员正式店 | 只允许当次 Preview Store，或讲师点名的 fallback Dev Store |
+| 误写学员正式店 | 只允许当次 Preview Store；不改挂 Dev Store |
 | 有人把店面密码设计进 GEO | 拒绝。明文不可读，更新 mutation 不存在；店面只用 accessUrl 会话 |
 | accessUrl 429 或短链过期 | 退避重试；重新 `store open` / `store info`；本轮可 Admin-only |
 | 时间不够 | 每组 5–10 SKU；严格时间盒 |
@@ -723,7 +723,7 @@ previewUrl、前后分、Fallback 演练
 每组结束时应有：
 
 ```text
-1 家已连接的 Preview Store（CLI 已缓存 Admin token；fallback 时注明 dev_fallback）
+1 家已连接的 Preview Store（CLI 已缓存 Admin token；唯一店路径）
 5–10 个已导入商品（GEO 后多为 Active + Online Store）
 1 个可预览 Unpublished Theme（previewUrl，经 store open / accessUrl 打开）
 1 份 Brand Brief
