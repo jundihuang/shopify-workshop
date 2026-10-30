@@ -61,7 +61,17 @@ shopify store create preview --name '…' --json
 
 ---
 
-## Step 3 · Brand Brief（约 8–10 分钟）
+## Step 3 · 商品上架到渠道（GEO 前，约 3 分钟）
+
+**说明：** 纯 Draft 没有店面商品页。导入之后、Brand Brief 之前，需一次确认把商品升为 Active 并发布到 Online Store。**主题仍不发布**（这一步不依赖主题）。未登录访客仍会看到 Opening soon；本组看店面继续用 accessUrl 会话。
+
+| 你看到什么 | 你做什么 | 确认控件 | 成功画面 |
+|---|---|---|---|
+| 「为 GEO 演示：发布商品到 Online Store」 | 读风险一句 | 「确认发布商品到渠道」 | 商品 status=active，渠道含 Online Store |
+
+---
+
+## Step 4 · Brand Brief（约 8–10 分钟）
 
 **Skill：** `brand-intake`
 
@@ -72,7 +82,7 @@ shopify store create preview --name '…' --json
 
 ---
 
-## Step 4 · Theme 预览（约 12–15 分钟）
+## Step 5 · Theme 预览（约 12–15 分钟）
 
 **Skill：** `shopify-theme-builder`
 
@@ -83,16 +93,6 @@ shopify store create preview --name '…' --json
 | 移动端检查提示 | 快速扫一眼手机宽度 | 「预览 OK，继续」 | theme_id + unpublished 记入状态 |
 
 失败：讲师启用预置 Demo Theme 的 `previewUrl`，本组 Brief 文案可后补。打开方式仍然是 store open / accessUrl。
-
----
-
-## Step 5 · 商品上架到渠道（GEO 前，约 3 分钟）
-
-**说明：** 纯 Draft 没有店面商品页。需一次确认把商品升为 Active 并发布到 Online Store。**主题仍不发布。** 未登录访客仍会看到 Opening soon；本组看店面继续用 accessUrl 会话。
-
-| 你看到什么 | 你做什么 | 确认控件 | 成功画面 |
-|---|---|---|---|
-| 「为 GEO 演示：发布商品到 Online Store」 | 读风险一句 | 「确认发布商品到渠道」 | 商品 status=active，渠道含 Online Store |
 
 ---
 
@@ -148,6 +148,7 @@ shopify store create preview --name '…' --json
 我不懂 Shopify，也没有 Partner 账号
   → Agent 帮我创建 Preview Store，我确认店名并跟着 store open
   → Excel 很熟，导入有预览不怕写坏
+  → 商品先放到 Online Store 渠道，主题仍不发布
   → Brief 像填表，不是写代码
   → 主题是「换皮」不是「从零做站」；用 access 会话看预览
   → GEO 分数像游戏，一键修 P0 就涨分；它读的是后台数据，不问我要密码

@@ -1,6 +1,8 @@
 # publish-products-for-geo runtime
 
-Workshop Step 6 runtime: the human-confirmed GEO-prep publish step.
+Workshop Step 3 runtime: the human-confirmed GEO-prep publish step.
+In the workshop chain it runs after product import and before brand-intake.
+It does not read a brand brief and it does not require a theme.
 
 ```text
 product-excel-import (Draft only)
@@ -10,6 +12,8 @@ product-excel-import (Draft only)
        productUpdate status=ACTIVE
        publishablePublish → Online Store publication
        theme untouched / never published
+  → brand-intake
+  → shopify-theme-builder
   → shopify-geo-eval-workshop
 ```
 

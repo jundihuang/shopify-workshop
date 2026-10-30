@@ -65,14 +65,14 @@ Workshop 不能给每位学员一家 Partner Dev Store。Workshop 只保留 Prev
 3. product-excel-import
    导入 5–10 个商品（默认 Draft）
 
-4. brand-intake
+4. （确认）publish_products_for_geo
+   商品 Active + Online Store 渠道；主题仍 Unpublished。不读取 Brand Brief，也不依赖 Theme
+
+5. brand-intake
    品牌资料 → Brand Brief
 
-5. shopify-theme-builder
+6. shopify-theme-builder
    骨架 + Brief → Unpublished Theme + preview_url
-
-6. （确认）publish_products_for_geo
-   商品 Active + Online Store 渠道；主题仍 Unpublished
 
 7. shopify-geo-eval-workshop
    简化 GEO Before
@@ -187,9 +187,9 @@ qa:
 start
   → create_preview_store
   → import_products
+  → confirm_publish_products_for_geo
   → create_brand_brief
   → build_theme_from_skeleton
-  → confirm_publish_products_for_geo
   → run_geo_eval_before
   → propose_geo_optimizations
   → human_review_p0_batch
@@ -202,9 +202,9 @@ start
 
 1. 确认创建并连接 Preview Store（失败时现场排障；必要时该组暂停）
 2. Excel 导入  
-3. Brand Brief 锁定  
-4. Theme 创建（或启用 Demo Theme Fallback）
-5. **商品发布到 Online Store（GEO 前）**  
+3. **商品发布到 Online Store（GEO 前；不依赖主题）**  
+4. Brand Brief 锁定  
+5. Theme 创建（或启用 Demo Theme Fallback）
 6. **批准全部 P0**（及可选精审）  
 7. 最终成果生成  
 
@@ -287,7 +287,7 @@ optional: write_draft_product_smoke_test
 #### 目标
 
 把简化版 Excel/CSV 导入为 Shopify 商品。  
-**默认写入 Draft**；渠道发布由编排器在 GEO 前另一步确认。
+**默认写入 Draft**。下一步是渠道发布（Active + Online Store），在 Brand Brief 与 Theme 之前，由编排器另一步确认。
 
 #### 输入
 
@@ -466,7 +466,7 @@ Workshop 可用的简化 GEO 诊断。回答：
 
 编排器传入 `store_domain` 与 `storefront_session=access_url` 句柄。本 skill 不接受店面密码。
 
-**前置：** 编排器已完成「商品 Active + Online Store」确认；主题仍 Unpublished。
+**前置：** 编排器已按现场顺序完成渠道发布、Brand Brief 和 Unpublished Theme。正式 before/after 在渠道发布之后；主题仍 Unpublished。Admin-only 预检不依赖主题。
 
 #### 简化版评分模型
 
@@ -572,9 +572,9 @@ Workshop 版裁剪见 §5.6 表。定位：
 /products.source.xlsx
 /products.import.preview.json
 /products.import.result.json
+/products.channel.json        # 导入之后、Brand Brief 之前的渠道发布结果
 /brand-brief.json
 /theme.manifest.json          # 含 preview_url, fallback_used
-/products.channel.json        # GEO 前发布结果
 /geo.before.json
 /geo.proposal.json
 /geo.approved.json
@@ -595,9 +595,9 @@ Workshop 版裁剪见 §5.6 表。定位：
 | 00:00–00:10 | 开场和案例 | 无 |
 | 00:10–00:15 | 创建 Preview Store | `shopify-store-connect` |
 | 00:15–00:30 | 导入商品 | `product-excel-import` |
-| 00:30–00:40 | Brand Brief | `brand-intake` |
-| 00:40–00:55 | 骨架 Theme + 预览 | `shopify-theme-builder` |
-| 00:55–00:58 | 商品发布到 Online Store | orchestrator 确认步 |
+| 00:30–00:33 | 商品发布到 Online Store | `publish-products-for-geo` |
+| 00:33–00:43 | Brand Brief | `brand-intake` |
+| 00:43–00:58 | 骨架 Theme + 预览 | `shopify-theme-builder` |
 | 00:58–01:05 | GEO Before | `shopify-geo-eval-workshop` |
 | 01:05–01:15 | 批 P0 + 精审 1–2 SKU | `shopify-geo-optimizer` |
 | 01:15–01:30 | After + Summary | orchestrator |
@@ -625,25 +625,27 @@ Excel/CSV + 核心字段 + Demo 图
 ready/warning/blocked
 ```
 
-### MVP 3：Brand Brief
+### MVP 3：渠道发布（导入之后、Brand Brief 之前）
+
+```text
+确认后 Active + Online Store
+主题保持 Unpublished
+不读取 Brand Brief，也不依赖 Theme
+```
+
+### MVP 4：Brand Brief
 
 ```text
 最少必填 → 固定 JSON
 缺失提示 + Demo Brief Fallback
 ```
 
-### MVP 4：主题
+### MVP 5：主题
 
 ```text
 骨架填充 → Unpublished + preview_url
 超时 → Demo Theme Fallback
-```
-
-### MVP 5：渠道发布（GEO 前）
-
-```text
-确认后 Active + Online Store
-主题保持 Unpublished
+需要 brand-brief.json；不要求渠道已发布
 ```
 
 ### MVP 6：GEO Workshop 诊断
@@ -686,7 +688,7 @@ geo optimizer（批 P0）
 
 ```text
 orchestrator
-brand → theme skeleton
+import → channel publish → brand → theme skeleton
 geo before → optimizer → after
 ```
 
