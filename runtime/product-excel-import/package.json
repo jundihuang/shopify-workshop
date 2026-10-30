@@ -1,0 +1,17 @@
+{
+  "name": "product-excel-import-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Workshop Step 2 runtime: validate CSV/XLSX product sheets and import Draft products to a Shopify Preview Store.",
+  "type": "module",
+  "bin": {
+    "product-excel-import": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "data": {
+    "productCreate": {
+      "product": {
+        "id": "gid://shopify/Product/9000001001",
+        "handle": "fixture-draft-product",
+        "title": "Fixture Draft Product",
+        "status": "DRAFT"
+      },
+      "userErrors": []
+    }
+  }
+}

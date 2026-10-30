@@ -1,6 +1,6 @@
 # products.import.xlsx 字段说明
 
-Workshop 商品导入模板。可用 CSV（见 `products.sample.csv`）或按下列列做 Excel。
+Workshop 商品导入模板。主 Demo 使用合作伙伴 Inflation Wear 样例：`products.inflationwear-tshirt.sample.csv` / `products.inflationwear-tshirt.sample.xlsx`（来源说明见 `products.inflationwear-tshirt.README.md`）。`products.sample.csv` 仅作为极小 fallback。也可按下列列做 Excel。
 
 ## 核心列
 
@@ -43,3 +43,5 @@ Workshop 商品导入模板。可用 CSV（见 `products.sample.csv`）或按下
 ## 状态提醒
 
 导入写入 **Draft**。GEO 演示前由编排器确认后改为 Active 并发布到 **Online Store**；主题仍 Unpublished。
+
+未知列（例如 `source_url`）会被运行时安全忽略。可运行 `./scripts/product-excel-import.sh validate --group-id A --file <file>` 生成 preview。

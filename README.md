@@ -10,7 +10,26 @@ Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 4. 填充 Unpublished Theme 并拿到带 `?preview_theme_id=` 的 `previewUrl`  
 5. 用 Workshop 版 GEO 打分 → 批量确认 P0 优化 → 再打分  
 
-本仓库以**方案与 Skill 契约**为主。Day 2–3 已落地第一个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Workshop Step 1：创建 Preview Store、校验 scopes、写安全连接产物）。其余步骤继续按 `docs/` 与各 `skills/*/SKILL.md` 落地。
+本仓库以**方案与 Skill 契约**为主，已落地两个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）与 [runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）。其余步骤继续按 `docs/` 与各 `skills/*/SKILL.md` 落地。
+
+商品导入主 Demo 使用合作伙伴 [INFLATION / inflationwear.com](https://inflationwear.com/collections/tshirt) 的公开商品样例（8 SKU）：
+
+```bash
+./scripts/product-excel-import.sh validate \
+  --group-id A \
+  --file templates/products.inflationwear-tshirt.sample.csv
+
+# 人工审阅 .workshop/A/products.import.preview.json 后：
+./scripts/product-excel-import.sh import --group-id A --confirm
+
+# 无网络写入的端到端演练：
+./scripts/product-excel-import.sh run \
+  --group-id A \
+  --file templates/products.inflationwear-tshirt.sample.xlsx \
+  --dry-run
+```
+
+导入固定写 Draft，不发布 Online Store 或其他销售渠道。
 
 ## 文档导航
 
@@ -55,9 +74,11 @@ shopify-geo-optimizer              P0 批量确认 + 写回
 - **店面 HTML/schema**：`accessUrl` 会话，加上 unpublished 主题的 `preview_theme_id`。限流重试；失败则只出 Admin 分
 - CLI：`shopify store create preview --name '…' --json`，然后 `shopify theme push --unpublished`
 
-## 模板
+## 模板与样例
 
-见 `templates/`：Excel 字段说明、样例 CSV、Brand Brief / workshop-state / geo-score schema。
+见 `templates/`：Excel 字段说明、Brand Brief / workshop-state / geo-score schema。
+
+商品导入样例优先使用：[templates/products.inflationwear-tshirt.sample.csv](templates/products.inflationwear-tshirt.sample.csv)、[templates/products.inflationwear-tshirt.sample.xlsx](templates/products.inflationwear-tshirt.sample.xlsx)，来源与授权说明见 [templates/products.inflationwear-tshirt.README.md](templates/products.inflationwear-tshirt.README.md)。`templates/products.sample.csv` 仅保留为极小 fallback。
 
 ## 仓库状态
 
