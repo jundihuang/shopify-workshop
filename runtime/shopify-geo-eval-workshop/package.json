@@ -1,0 +1,17 @@
+{
+  "name": "shopify-geo-eval-workshop-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Workshop GEO scorecard: read-only 5-dimension score for up to 10 Preview Store products.",
+  "type": "module",
+  "bin": {
+    "shopify-geo-eval-workshop": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

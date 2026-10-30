@@ -1,0 +1,156 @@
+{
+  "products": [
+    {
+      "handle": "soft-touch-100-cotton-blank-t-shirt-inflation-streetwear",
+      "title": "Heavyweight Cotton Oversized T-Shirt",
+      "description": "Heavyweight cotton oversized t-shirt with a clean everyday structure. What material is this? 100% cotton. Shipping and returns follow the store policy.",
+      "productType": "T-Shirt",
+      "vendor": "INFLATION",
+      "status": "ACTIVE",
+      "tags": ["cotton", "tshirt"],
+      "seo": {
+        "title": "Heavyweight Cotton Oversized T-Shirt",
+        "description": "Heavyweight cotton oversized t-shirt for everyday wear, with a relaxed structure and a simple fabric story."
+      },
+      "media": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0800/5612/3704/files/workshop-heavyweight-tee.jpg",
+          "alt": "Heavyweight cotton oversized t-shirt"
+        }
+      ],
+      "options": [{ "name": "Size", "values": ["S", "M", "L", "XL"] }],
+      "variants": [{ "sku": "265SS187S", "price": "19.99" }],
+      "faq": "What material is this? 100% cotton."
+    },
+    {
+      "handle": "boxy-camo-tees-inflation-streetwear",
+      "title": "Boxy Camo Tees",
+      "description": "Boxy camo t-shirt in 100% cotton with a streetwear fit. What material is this? 100% cotton. Shipping and returns follow the store policy.",
+      "productType": "T-Shirt",
+      "vendor": "INFLATION",
+      "status": "ACTIVE",
+      "tags": ["camo", "cotton"],
+      "seo": {
+        "title": "Boxy Camo Cotton T-Shirt",
+        "description": "Boxy camo t-shirt in cotton with a relaxed streetwear fit for everyday outfits."
+      },
+      "media": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0800/5612/3704/files/workshop-camo-tee.jpg",
+          "alt": "Boxy camo t-shirt"
+        }
+      ],
+      "options": [{ "name": "Size", "values": ["M", "L", "XL"] }],
+      "variants": [{ "sku": "S26012712M", "price": "29.99" }],
+      "faq": "What material is this? 100% cotton."
+    },
+    {
+      "handle": "waffle-graphic-henley-long-sleeve-t-shirt-inflation-streetwear",
+      "title": "Graphic Henley Long Sleeve T-Shirt",
+      "description": "Relaxed henley long sleeve in a textured cotton blend. What material is this? Cotton blend. Shipping and returns follow the store policy.",
+      "productType": "T-Shirt",
+      "vendor": "INFLATION",
+      "status": "ACTIVE",
+      "tags": ["henley", "long-sleeve"],
+      "seo": {
+        "title": "Graphic Henley Long Sleeve T-Shirt",
+        "description": "Relaxed henley long sleeve with a textured cotton blend and a simple graphic."
+      },
+      "media": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0800/5612/3704/files/workshop-henley.jpg",
+          "alt": "Graphic henley long sleeve t-shirt"
+        }
+      ],
+      "options": [{ "name": "Size", "values": ["S", "M", "L"] }],
+      "variants": [{ "sku": "TP638239S", "price": "39.99" }],
+      "faq": "What material is this? Cotton blend."
+    },
+    {
+      "handle": "blank-oversized-boxy-tees-inflation-streetwear",
+      "title": "Blank Oversized Boxy Tees",
+      "description": "Blank oversized boxy tee cut from heavyweight cotton. What material is this? 100% cotton. Shipping and returns follow the store policy.",
+      "productType": "T-Shirt",
+      "vendor": "INFLATION",
+      "status": "ACTIVE",
+      "tags": ["boxy", "cotton"],
+      "seo": {
+        "title": "Blank Oversized Boxy Cotton Tee",
+        "description": "Blank oversized boxy tee in heavyweight cotton for a clean everyday uniform."
+      },
+      "media": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0800/5612/3704/files/workshop-boxy-tee.jpg",
+          "alt": "Blank oversized boxy tee"
+        }
+      ],
+      "options": [{ "name": "Size", "values": ["S", "M", "L", "XL"] }],
+      "variants": [{ "sku": "8194S25142M", "price": "19.99" }],
+      "faq": "What material is this? 100% cotton."
+    },
+    {
+      "handle": "heavyweight-oversized-washed-tees-inflation-streetwear",
+      "title": "Heavyweight Oversized Washed Tees",
+      "description": "Washed oversized tee in heavyweight cotton with a worn-in hand. What material is this? 100% cotton. Shipping and returns follow the store policy.",
+      "productType": "T-Shirt",
+      "vendor": "INFLATION",
+      "status": "ACTIVE",
+      "tags": ["washed", "cotton"],
+      "seo": {
+        "title": "Heavyweight Oversized Washed Tee",
+        "description": "Washed oversized tee in heavyweight cotton with a relaxed, worn-in finish."
+      },
+      "media": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0800/5612/3704/files/workshop-washed-tee.jpg",
+          "alt": "Heavyweight oversized washed tee"
+        }
+      ],
+      "options": [{ "name": "Size", "values": ["M", "L", "XL"] }],
+      "variants": [{ "sku": "8199S25111M", "price": "24.99" }],
+      "faq": "What material is this? 100% cotton."
+    },
+    {
+      "handle": "workshop-thin-tee",
+      "title": "Tee",
+      "description": "A shirt.",
+      "productType": "",
+      "vendor": "",
+      "status": "DRAFT",
+      "tags": [],
+      "seo": { "title": "", "description": "" },
+      "media": [],
+      "options": [],
+      "variants": [{ "sku": "", "price": "10.00" }],
+      "faq": ""
+    },
+    {
+      "handle": "workshop-plain-hoodie",
+      "title": "Hoodie",
+      "description": "",
+      "productType": "",
+      "vendor": "",
+      "status": "DRAFT",
+      "tags": [],
+      "seo": { "title": "", "description": "" },
+      "media": [],
+      "options": [],
+      "variants": [{ "sku": "", "price": "" }],
+      "faq": ""
+    },
+    {
+      "handle": "workshop-plain-cap",
+      "title": "Cap",
+      "description": "Plain cap.",
+      "productType": "Hat",
+      "vendor": "",
+      "status": "DRAFT",
+      "tags": [],
+      "seo": { "title": "Cap", "description": "" },
+      "media": [],
+      "options": [],
+      "variants": [{ "sku": "CAP-1", "price": "12.00" }],
+      "faq": ""
+    }
+  ]
+}

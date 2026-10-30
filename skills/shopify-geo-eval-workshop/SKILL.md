@@ -71,8 +71,45 @@ Product Data Completeness 只依赖 A。B 缺失时 Search / AI / Trust 用 Admi
 
 输出里可以有店铺域名和 `preview_url`。禁止出现 accessUrl、Admin token、店面密码。
 
+## 运行时
+
+实现：[runtime/shopify-geo-eval-workshop](../../runtime/shopify-geo-eval-workshop/)。这是一份 workshop scorecard，不是完整诊断。打分只检查 Admin 的 title / description / media / SEO 字段，再套用上面的 5 维权重。
+
+人工确认留在 CLI 外面。`apply` 必须带 `--confirm`，`--dry-run` 同样要带。
+
+```bash
+./scripts/shopify-geo-eval-workshop.sh plan --group-id A
+
+# 只读打分并写 before scorecard
+./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm
+
+# 不调用 Shopify、不抓 HTML：用 fixture 商品打分
+./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm --dry-run
+
+# 即使已连接，也只评 Admin 字段
+./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm --skip-html
+```
+
+写入：
+
+```text
+.workshop/<group_id>/geo.plan.json          # plan
+.workshop/<group_id>/geo.before.json        # apply，符合 templates/geo-score.schema.json
+.workshop/<group_id>/geo.before.md
+.workshop/<group_id>/workshop-state.yaml    # geo.before_score、evidence_mode、restrictions
+```
+
+- 只接受 Preview Store。`apply` 不改商品、不改主题。
+- 样本最多 10 个商品。Admin 查询是只读的。
+- `--dry-run` 读取 `runtime/shopify-geo-eval-workshop/fixtures/admin-products.success.json`，`evidence_mode=admin_only`，restrictions 含 `html_evidence_skipped`。
+- 商品 `channel_status` 不是 `online_store_active` 时只做 Admin 预检，并记下 `channel_not_online_store`。
+- HTML 仅在渠道已确认、会话句柄为 `access_url`、且没有 `--dry-run` / `--skip-html` 时，通过当次 `shopify store info` 抓取。URL 不入库。失败、429 或 Opening soon 页面都降为 `admin_only`。
+- 可以写店铺域名和安全的 `preview_url`（`https://{store}/?preview_theme_id={id}`）。禁止写入 accessUrl、Admin token、店面密码。
+- 传入 `--password` 或 connection 里带店面密码字段时直接拒绝。
+
 ## 验收
 
 - 时限内出分；前后可比
 - 样本 ≤10 SKU；无全站爬虫
-- 实现中不存在「从 Admin 读取 Opening soon 密码」或调用 `onlineStorePasswordProtectionUpdate` 的步骤
+- 实现中不存在「从 Admin 读取 Opening soon 密码」或调用店面密码更新的步骤
+- `cd runtime/shopify-geo-eval-workshop && npm test` 覆盖：schema、5 维、dry-run、无 `--confirm` 拒绝、不落 accessUrl、跳过 HTML 时 `admin_only`、样本 ≤10、分数到等级的映射

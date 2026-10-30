@@ -10,7 +10,7 @@ Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 4. 填充 Unpublished Theme 并拿到带 `?preview_theme_id=` 的 `previewUrl`  
 5. 用 Workshop 版 GEO 打分 → 批量确认 P0 优化 → 再打分  
 
-本仓库以**方案与 Skill 契约**为主，已落地五个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）、[runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（GEO 前人工确认：商品 Active + Online Store，Theme 保持 Unpublished）、[runtime/brand-intake](runtime/brand-intake/)（Brand Brief：把学员答案整理成 schema 校验过的 `brand-brief.json`，超时可加载 Aurora Skincare Demo Brief；只写本地 JSON）与 [runtime/shopify-theme-builder](runtime/shopify-theme-builder/)（骨架填充 Brand Brief，`shopify theme push --unpublished`，返回带 `?preview_theme_id=` 的 `preview_url`；超时挂 Demo Theme，不发布主题）。GEO 仍按 `docs/` 与各 `skills/*/SKILL.md` 落地。
+本仓库以**方案与 Skill 契约**为主，已落地六个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）、[runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（GEO 前人工确认：商品 Active + Online Store，Theme 保持 Unpublished）、[runtime/brand-intake](runtime/brand-intake/)（Brand Brief：把学员答案整理成 schema 校验过的 `brand-brief.json`，超时可加载 Aurora Skincare Demo Brief；只写本地 JSON）、[runtime/shopify-theme-builder](runtime/shopify-theme-builder/)（骨架填充 Brand Brief，`shopify theme push --unpublished`，返回带 `?preview_theme_id=` 的 `preview_url`；超时挂 Demo Theme，不发布主题）与 [runtime/shopify-geo-eval-workshop](runtime/shopify-geo-eval-workshop/)（Workshop 5 维 GEO before 分：只读 Admin 字段，最多 10 个商品；HTML 可选且不落 accessUrl）。优化器写回仍按 `skills/shopify-geo-optimizer/SKILL.md` 后续落地。
 
 商品导入主 Demo 使用合作伙伴 [INFLATION / inflationwear.com](https://inflationwear.com/collections/tshirt) 的公开商品样例（8 SKU）：
 
@@ -76,6 +76,20 @@ Unpublished Theme 是 Brand Brief 之后落地的下一个 MVP。它只填充预
 ```
 
 `plan` 读取 `.workshop/<group_id>/brand-brief.json` 和 `connection.json`，只接受 Preview Store，列出将写入的 settings / sections 与风险，不 push。`apply` 必须带 `--confirm`（含 `--dry-run`）。成功后写 `theme.manifest.json`，并把 `workshop-state.yaml` 的 `theme.status` 更新为 `unpublished` 或 `fallback`。`preview_url` 形如 `https://{store}/?preview_theme_id={id}`。真实上传用 `shopify theme push --unpublished --json`；只有 CLI 不提供该标志时才改用 `theme share --json`。超过约 3.5 分钟（上限 4 分钟）或上传失败时挂 Demo Theme（`fallback_used=true`）。这一步不发布主题，不改商品渠道，不写 `accessUrl`。
+
+Workshop GEO before 是主题预览之后、优化器之前的只读打分。这是一份 workshop scorecard，不是完整诊断：
+
+```bash
+./scripts/shopify-geo-eval-workshop.sh plan --group-id A
+
+# 人工审阅维度、样本上限与证据计划后：
+./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm
+
+# 不调用 Shopify、不抓 accessUrl，用 fixture 商品打分：
+./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm --dry-run
+```
+
+`plan` 只接受 Preview Store，写出 `geo.plan.json`，不打分。`apply` 必须带 `--confirm`（含 `--dry-run`）。它只读 Admin 的 title / description / media / SEO 字段，样本最多 10 个商品，按已发布的 5 维权重写出 `geo.before.json` 和一页 `geo.before.md`，并更新 `workshop-state.yaml` 的 `geo.before_score`、`geo.evidence_mode`、`geo.restrictions`。`--dry-run` 或跳过 HTML 时 `evidence_mode=admin_only`。店面 HTML 只用当次 `shopify store info` 会话，用完即弃。商品未处于 Active + Online Store 时只做 Admin 预检。这一步不改商品、不改主题、不接收店面密码，也不把 accessUrl 写入产物。
 
 ## 文档导航
 

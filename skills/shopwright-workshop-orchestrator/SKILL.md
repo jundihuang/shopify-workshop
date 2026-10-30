@@ -104,6 +104,22 @@ Home / Collection / Product section，然后 `shopify theme push --unpublished -
 `templates/theme.manifest.demo.json` 描述的 Demo Theme，`fallback_used=true`。
 `apply` 缺少 `--confirm` 必须拒绝。不发布主题，不改商品渠道，不写 `accessUrl`。
 
+## Workshop GEO 运行时（只读 before 分）
+
+`run_geo_eval_before` 的已落地命令是：
+
+```bash
+./scripts/shopify-geo-eval-workshop.sh plan --group-id A
+# 人工确认 plan 中的 5 维、样本上限与 participant_confirm_copy 后：
+./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm
+# 无 Shopify、无 HTML 的演练：
+./scripts/shopify-geo-eval-workshop.sh apply --group-id A --confirm --dry-run
+```
+
+实现见 [runtime/shopify-geo-eval-workshop](../../runtime/shopify-geo-eval-workshop/)。这是一份 workshop scorecard，不是完整诊断。它只接受 Preview Store，只读 Admin 的 title / description / media / SEO 字段，样本最多 10 个商品，按已发布的 5 维权重打分。成功后写 `geo.before.json` 与短页 `geo.before.md`，并把 `geo.before_score`、`geo.evidence_mode`、`geo.restrictions` 写入 `workshop-state.yaml`。`after_score` 与 `optimizer_status` 留给后续优化器。
+
+HTML 只用编排器传来的 `storefront_session=access_url` 句柄，在运行时解析当次 `shopify store info` 会话，不把 URL 写入状态或 scorecard。会话缺失、`--dry-run`、`--skip-html`，或商品还不是 Active + Online Store 时，以 `evidence_mode=admin_only` 继续。`apply` 缺少 `--confirm` 必须拒绝。不改商品，不改主题，不接收店面密码。
+
 ## 交给 GEO 的连接信息
 
 `run_geo_eval_before` / `run_geo_eval_after` 只接收：
