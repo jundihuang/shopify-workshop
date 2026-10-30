@@ -1,0 +1,95 @@
+{
+  "store": "aurora-workshop-mvp.myshopify.com",
+  "geo_score": 35,
+  "grade": "D",
+  "evidence_mode": "admin_only",
+  "restrictions": [
+    "html_evidence_skipped",
+    "unauthenticated_storefront_restricted"
+  ],
+  "dimensions": {
+    "product_data_completeness": 40,
+    "search_findability": 30,
+    "ai_understandability": 28,
+    "purchase_trust": 40,
+    "technical_visibility": 40
+  },
+  "top_issues": [
+    {
+      "issue": "Some product titles are missing or too short.",
+      "impact": "The item is harder to identify in search and in an assistant answer.",
+      "priority": "P0"
+    },
+    {
+      "issue": "Some descriptions are missing or too thin.",
+      "impact": "Shoppers and assistants lack enough product facts to understand the item.",
+      "priority": "P0"
+    },
+    {
+      "issue": "SEO title or description is missing on sampled products.",
+      "impact": "Search snippets fall back to thin or empty fields.",
+      "priority": "P0"
+    }
+  ],
+  "products": [
+    {
+      "handle": "daily-serum",
+      "score": 22,
+      "issues": [
+        "Title is missing or too short.",
+        "Description is missing or too thin.",
+        "SEO title or description is missing."
+      ],
+      "priority": "P0",
+      "missing_fields": [
+        "title",
+        "description",
+        "seo_title",
+        "seo_description",
+        "attributes",
+        "faq",
+        "image_alt"
+      ],
+      "schema_status": "not_checked",
+      "seo_status": "missing",
+      "ai_readability_status": "thin",
+      "fields": {
+        "title": "Serum",
+        "description": "A serum.",
+        "meta_title": "",
+        "meta_description": "",
+        "product_type": ""
+      }
+    },
+    {
+      "handle": "night-cream",
+      "score": 24,
+      "issues": [
+        "Title is missing or too short.",
+        "Description is missing or too thin.",
+        "SEO title or description is missing."
+      ],
+      "priority": "P0",
+      "missing_fields": [
+        "title",
+        "description",
+        "seo_title",
+        "seo_description",
+        "attributes",
+        "faq",
+        "image_alt"
+      ],
+      "schema_status": "not_checked",
+      "seo_status": "missing",
+      "ai_readability_status": "thin",
+      "fields": {
+        "title": "Cream",
+        "description": "A cream.",
+        "meta_title": "",
+        "meta_description": "",
+        "product_type": ""
+      }
+    }
+  ],
+  "skill": "shopify-geo-eval-workshop"
+}

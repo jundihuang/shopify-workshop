@@ -1,0 +1,201 @@
+{
+  "ok": true,
+  "artifact": "geo.proposal.json",
+  "schema_version": "1.0",
+  "skill": "shopify-geo-optimizer",
+  "source_skill": "shopify-geo-eval-workshop",
+  "group_id": "A",
+  "store": "aurora-workshop-mvp.myshopify.com",
+  "store_type": "preview",
+  "before_score": 35,
+  "ux": {
+    "default_action": "approve_all_p0",
+    "deep_review_max_products": 2,
+    "p1": "collapsed",
+    "line_by_line_review": false
+  },
+  "constraints": {
+    "category": "serum",
+    "scene": "a short morning routine",
+    "selling_points": [
+      "Ingredient names in plain language",
+      "Use notes for one routine step"
+    ]
+  },
+  "counts": {
+    "products": 2,
+    "suggestions": 14,
+    "p0": 10,
+    "p1": 4
+  },
+  "suggestions": [
+    {
+      "handle": "daily-serum",
+      "field": "title",
+      "before": "Serum",
+      "after": "Aurora Skincare daily serum for a short morning routine",
+      "reason": "Workshop scorecard: title is missing or too short.",
+      "expected_impact": "Search Findability on the workshop scorecard",
+      "priority": "P0",
+      "confidence": "high",
+      "batch": true,
+      "collapsed": false
+    },
+    {
+      "handle": "daily-serum",
+      "field": "description",
+      "before": "A serum.",
+      "after": "Aurora Skincare daily serum is a serum for a short morning routine. Ingredient names in plain language. Use notes for one routine step. Details stay limited to the category, one selling point, and the scene.",
+      "reason": "Workshop scorecard: description is missing or too thin.",
+      "expected_impact": "Product Data Completeness and AI Understandability on the workshop scorecard",
+      "priority": "P0",
+      "confidence": "high",
+      "batch": true,
+      "collapsed": false
+    },
+    {
+      "handle": "daily-serum",
+      "field": "meta_title",
+      "before": "",
+      "after": "Aurora Skincare daily serum for a short morning routine",
+      "reason": "Workshop scorecard: SEO title is missing. Meta title target is about 60 characters.",
+      "expected_impact": "Search Findability on the workshop scorecard",
+      "priority": "P0",
+      "confidence": "high",
+      "batch": true,
+      "collapsed": false
+    },
+    {
+      "handle": "daily-serum",
+      "field": "meta_description",
+      "before": "",
+      "after": "Aurora Skincare daily serum is a serum for a short morning routine. Ingredient names in plain language. Use notes for one routine step. Plain care notes.",
+      "reason": "Workshop scorecard: SEO description is missing. Meta description target is about 150 characters.",
+      "expected_impact": "Search Findability on the workshop scorecard",
+      "priority": "P0",
+      "confidence": "high",
+      "batch": true,
+      "collapsed": false
+    },
+    {
+      "handle": "daily-serum",
+      "field": "key_attributes",
+      "before": "",
+      "after": "category: serum; scene: a short morning routine; point: Ingredient names in plain language",
+      "reason": "Workshop scorecard: key attributes are missing. Fill category, selling point, and scene from the brand brief.",
+      "expected_impact": "Product Data Completeness on the workshop scorecard",
+      "priority": "P0",
+      "confidence": "high",
+      "batch": true,
+      "collapsed": false
+    },
+    {
+      "handle": "daily-serum",
+      "field": "faq",
+      "before": "",
+      "after": "What is this serum for? It is for a short morning routine.",
+      "reason": "Workshop scorecard: FAQ is missing. Collapsed P1; skip it unless you deep-review this product.",
+      "expected_impact": "Purchase Trust on the workshop scorecard",
+      "priority": "P1",
+      "confidence": "high",
+      "batch": false,
+      "collapsed": true
+    },
+    {
+      "handle": "daily-serum",
+      "field": "image_alt",
+      "before": "",
+      "after": "Aurora Skincare daily serum serum",
+      "reason": "Workshop scorecard: image alt is missing. Collapsed P1; skip it unless you deep-review this product.",
+      "expected_impact": "Product Data Completeness on the workshop scorecard",
+      "priority": "P1",
+      "confidence": "high",
+      "batch": false,
+      "collapsed": true
+    },
+    {
+      "handle": "night-cream",
+      "field": "title",
+      "before": "Cream",
+      "after": "Aurora Skincare night cream serum for a short morning routine",
+      "reason": "Workshop scorecard: title is missing or too short.",
+      "expected_impact": "Search Findability on the workshop scorecard",
+      "priority": "P0",
+      "confidence": "high",
+      "batch": true,
+      "collapsed": false
+    },
+    {
+      "handle": "night-cream",
+      "field": "description",
+      "before": "A cream.",
+      "after": "Aurora Skincare night cream is a serum for a short morning routine. Ingredient names in plain language. Use notes for one routine step. Details stay limited to the category, one selling point, and the scene.",
+      "reason": "Workshop scorecard: description is missing or too thin.",
+      "expected_impact": "Product Data Completeness and AI Understandability on the workshop scorecard",
+      "priority": "P0",
+      "confidence": "high",
+      "batch": true,
+      "collapsed": false
+    },
+    {
+      "handle": "night-cream",
+      "field": "meta_title",
+      "before": "",
+      "after": "Aurora Skincare night cream serum for a short morning routine",
+      "reason": "Workshop scorecard: SEO title is missing. Meta title target is about 60 characters.",
+      "expected_impact": "Search Findability on the workshop scorecard",
+      "priority": "P0",
+      "confidence": "high",
+      "batch": true,
+      "collapsed": false
+    },
+    {
+      "handle": "night-cream",
+      "field": "meta_description",
+      "before": "",
+      "after": "Aurora Skincare night cream is a serum for a short morning routine. Ingredient names in plain language. Use notes for one routine step. Plain care notes.",
+      "reason": "Workshop scorecard: SEO description is missing. Meta description target is about 150 characters.",
+      "expected_impact": "Search Findability on the workshop scorecard",
+      "priority": "P0",
+      "confidence": "high",
+      "batch": true,
+      "collapsed": false
+    },
+    {
+      "handle": "night-cream",
+      "field": "key_attributes",
+      "before": "",
+      "after": "category: serum; scene: a short morning routine; point: Ingredient names in plain language",
+      "reason": "Workshop scorecard: key attributes are missing. Fill category, selling point, and scene from the brand brief.",
+      "expected_impact": "Product Data Completeness on the workshop scorecard",
+      "priority": "P0",
+      "confidence": "high",
+      "batch": true,
+      "collapsed": false
+    },
+    {
+      "handle": "night-cream",
+      "field": "faq",
+      "before": "",
+      "after": "What is this serum for? It is for a short morning routine.",
+      "reason": "Workshop scorecard: FAQ is missing. Collapsed P1; skip it unless you deep-review this product.",
+      "expected_impact": "Purchase Trust on the workshop scorecard",
+      "priority": "P1",
+      "confidence": "high",
+      "batch": false,
+      "collapsed": true
+    },
+    {
+      "handle": "night-cream",
+      "field": "image_alt",
+      "before": "",
+      "after": "Aurora Skincare night cream serum",
+      "reason": "Workshop scorecard: image alt is missing. Collapsed P1; skip it unless you deep-review this product.",
+      "expected_impact": "Product Data Completeness on the workshop scorecard",
+      "priority": "P1",
+      "confidence": "high",
+      "batch": false,
+      "collapsed": true
+    }
+  ]
+}

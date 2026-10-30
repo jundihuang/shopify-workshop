@@ -14,6 +14,8 @@ import {
 } from "./files.js";
 import { collectHtmlEvidence, previewThemeIdFrom } from "./html.js";
 import {
+  AFTER_MARKDOWN_FILENAME,
+  AFTER_SCORE_FILENAME,
   PLAN_FILENAME,
   SAMPLE_LIMIT,
   SCORE_FILENAME,
@@ -25,19 +27,19 @@ import { buildScorecard, renderScoreMarkdown, safePreviewUrl } from "./scorecard
 import { DIMENSION_KEYS, WEIGHTS, prepareSample } from "./score.js";
 import { loadGeoScoreSchema, validateGeoScore } from "./schema.js";
 import { fetchAdminProducts, readStoreInfoAccessUrl } from "./shopify.js";
-import { updateGeoBeforeState } from "./state.js";
+import { updateGeoAfterState, updateGeoBeforeState } from "./state.js";
 
 const CONFIRM_COPY = "「只读 Workshop GEO 打分（不改商品、不改主题、不读取店面密码）」";
 const PASSWORD_FLAGS = new Set(["password", "storefront-password", "opening-soon-password"]);
 const BOOLEAN_FLAGS = new Set(["help", "version", "json", "dry-run", "confirm", "skip-html"]);
-const VALUE_FLAGS = new Set(["group-id", "group-dir", "workdir", "fixtures-dir"]);
+const VALUE_FLAGS = new Set(["group-id", "group-dir", "workdir", "fixtures-dir", "phase"]);
 
 function usage() {
   return `ShopWright Workshop — shopify-geo-eval-workshop runtime
 
 Usage:
   node src/cli.js plan  (--group-id <id> | --group-dir <dir>)
-  node src/cli.js apply (--group-id <id> | --group-dir <dir>) --confirm [--dry-run] [--skip-html]
+  node src/cli.js apply (--group-id <id> | --group-dir <dir>) --confirm [--dry-run] [--skip-html] [--phase before|after]
 
 Options:
   --group-id <id>        Workshop group id; artifacts live under .workshop/<id>/
@@ -47,6 +49,9 @@ Options:
                          Human confirmation happens outside this CLI after reviewing the plan.
   --dry-run              Score fixtures. Do not call Shopify and do not fetch accessUrl HTML.
   --skip-html            Score Admin fields only. Do not resolve a storefront session.
+  --phase <before|after> Default before writes geo.before.json and geo.before_score.
+                         after writes geo.after.json and geo.after_score only.
+                         The optimizer calls --phase after. This package stays read-only.
   --fixtures-dir <dir>   Directory containing admin-products.success.json for --dry-run
   --json                 Accepted for agent compatibility; output is JSON by default
   --help                 Show this help
@@ -55,7 +60,9 @@ Artifacts:
   .workshop/<group-id>/geo.plan.json
   .workshop/<group-id>/geo.before.json
   .workshop/<group-id>/geo.before.md
-  .workshop/<group-id>/workshop-state.yaml   # geo.before_score, evidence_mode, restrictions
+  .workshop/<group-id>/geo.after.json         # apply --phase after
+  .workshop/<group-id>/geo.after.md
+  .workshop/<group-id>/workshop-state.yaml   # before_score, or after_score when --phase after
 
 Safety:
   - Preview Store only. Read-only Admin product fields. Sample at most ${SAMPLE_LIMIT} products.
@@ -244,6 +251,14 @@ async function maybeCollectHtml(opts, connection, products, decision, previewUrl
   return { ...html, shopify_called: true };
 }
 
+function scorePhase(opts) {
+  const phase = opts.phase || "before";
+  if (phase !== "before" && phase !== "after") {
+    throw new Error('--phase must be "before" or "after"');
+  }
+  return phase;
+}
+
 async function runApply(opts) {
   if (!opts.confirm) {
     throw new Error(
@@ -251,6 +266,7 @@ async function runApply(opts) {
     );
   }
 
+  const phase = scorePhase(opts);
   const groupDir = resolveGroupDir(opts);
   const connection = await readGeoConnection(groupDir);
   const dryRun = Boolean(opts["dry-run"]);
@@ -276,17 +292,20 @@ async function runApply(opts) {
 
   const statePath = path.join(groupDir, "workshop-state.yaml");
   const existingState = connection.stateText || await readTextOrEmpty(statePath);
-  const nextState = updateGeoBeforeState(existingState, {
-    beforeScore: scorecard.geo_score,
-    evidenceMode: scorecard.evidence_mode,
-    restrictions: scorecard.restrictions,
-  });
+  const nextState = phase === "after"
+    ? updateGeoAfterState(existingState, { afterScore: scorecard.geo_score })
+    : updateGeoBeforeState(existingState, {
+      beforeScore: scorecard.geo_score,
+      evidenceMode: scorecard.evidence_mode,
+      restrictions: scorecard.restrictions,
+    });
   const markdown = `${renderScoreMarkdown(scorecard).replace(/\n+$/, "")}\n`;
-  const scorePath = path.join(groupDir, SCORE_FILENAME);
-  const markdownPath = path.join(groupDir, SCORE_MARKDOWN_FILENAME);
+  const scorePath = path.join(groupDir, phase === "after" ? AFTER_SCORE_FILENAME : SCORE_FILENAME);
+  const markdownPath = path.join(groupDir, phase === "after" ? AFTER_MARKDOWN_FILENAME : SCORE_MARKDOWN_FILENAME);
   const output = {
     ok: true,
     command: "apply",
+    phase,
     dry_run: dryRun,
     store: connection.store,
     store_type: "preview",
@@ -303,11 +322,17 @@ async function runApply(opts) {
     mutations: false,
     state_updated: true,
     skill: scorecard.skill,
-    artifacts: {
-      geo_before_json: relativeArtifactPath(scorePath),
-      geo_before_md: relativeArtifactPath(markdownPath),
-      workshop_state_yaml: relativeArtifactPath(statePath),
-    },
+    artifacts: phase === "after"
+      ? {
+        geo_after_json: relativeArtifactPath(scorePath),
+        geo_after_md: relativeArtifactPath(markdownPath),
+        workshop_state_yaml: relativeArtifactPath(statePath),
+      }
+      : {
+        geo_before_json: relativeArtifactPath(scorePath),
+        geo_before_md: relativeArtifactPath(markdownPath),
+        workshop_state_yaml: relativeArtifactPath(statePath),
+      },
   };
   if (dryRun) output.fixture_used = "fixtures/admin-products.success.json";
   if (previewUrl) output.preview_url = previewUrl;

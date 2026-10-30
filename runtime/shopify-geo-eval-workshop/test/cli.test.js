@@ -384,3 +384,39 @@ test("live read does not persist accessUrl and stays admin_only when HTML fails"
     await rm(temp, { recursive: true, force: true });
   }
 });
+
+test("phase after writes geo.after.json and leaves the before score in place", async () => {
+  const temp = await mkdtemp(path.join(os.tmpdir(), "geo-after-"));
+  try {
+    const { workdir, groupDir } = await setupGroup(temp);
+    const fake = await installFakeShopify(temp);
+    const applied = await runCli(
+      ["apply", "--group-id", "A", "--workdir", workdir, "--confirm", "--dry-run", "--phase", "after"],
+      temp,
+      {
+        SHOPIFY_CLI_BIN: fake.bin,
+        SHOPIFY_ARGV_LOG: fake.log,
+        FIXTURE_ACCESS_URL: fixtureAccessUrl,
+      },
+    );
+    assert.equal(applied.code, 0, applied.stderr);
+    const output = JSON.parse(applied.stdout);
+    assert.equal(output.phase, "after");
+    assert.equal(output.mutations, false);
+    assert.equal(output.products_touched, false);
+    await assert.rejects(readFile(fake.log, "utf8"));
+    await assert.rejects(readFile(path.join(groupDir, "geo.before.json"), "utf8"));
+    const after = JSON.parse(await readFile(path.join(groupDir, "geo.after.json"), "utf8"));
+    const schema = await loadGeoScoreSchema();
+    assert.deepEqual(validateGeoScore(after, schema), []);
+    assert.equal(after.skill, "shopify-geo-eval-workshop");
+    const state = await readFile(path.join(groupDir, "workshop-state.yaml"), "utf8");
+    assert.match(state, /before_score: null/);
+    assert.match(state, new RegExp(`after_score: ${after.geo_score}`));
+    assert.match(state, /optimizer_status: pending/);
+    assert.match(state, /evidence_mode: admin_only/);
+    assertNoSecrets(`${JSON.stringify(after)}\n${state}\n${applied.stdout}`);
+  } finally {
+    await rm(temp, { recursive: true, force: true });
+  }
+});
