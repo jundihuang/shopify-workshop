@@ -1,135 +1,182 @@
-# Research: Shopify CLI Preview 与 Workshop GEO 证据源
+# Research: Preview Store 与 Workshop GEO 证据源
 
-状态：调研结论写入方案；**已证实** vs **建议** vs **待 Dry Run 实测** 分栏标注。
+状态：**2026-10-30 dry run 已证实** Preview Store 与未登录店面行为。店面鉴权已由 owner Jayce 锁定。  
+实测笔记：[dry-run-preview-store-2026-10-30.md](dry-run-preview-store-2026-10-30.md)。
 
-用户原话对齐：「ShopifyCLI storecreate preview」→ 官方并无单独的 “preview store” 产品；应对齐为：
+早先把「Shopify CLI store create preview」收成 `shopify store create dev` + 主题预览 URL，是错的。CLI 有独立的 **Preview Store**：
 
 ```text
-shopify store create dev
-  + shopify theme push --unpublished [--json]
-  → preview_url = https://{store}/?preview_theme_id={THEME_ID}
+shopify store create preview --name '…' --json
+  → type=preview，约 10s，无需已有账号 / 信用卡
+  → CLI 缓存 Admin API token
+  → shopify store info 含 accessUrl（会话 URL，不当文档样例保存）
+
+shopify theme push --unpublished
+  → previewUrl = https://{store}/?preview_theme_id={THEME_ID}
 ```
 
-也可参考 `shopify theme share`（同样上传为 unpublished 并给预览链接）。
+`shopify theme share` 仍是「上传为 unpublished 并给预览链接」的旁路，现场主命令用 `theme push --unpublished`。
 
 ---
 
-## 1. Theme 预览（已证实 · 官方文档 / CLI 行为）
+## 1. Preview Store（已证实 · dry run，CLI 5.0.0）
 
 | 事实 | 说明 |
 |---|---|
-| `shopify theme push --unpublished --json` | 返回 `preview_url`，形如 `https://store.myshopify.com/?preview_theme_id=THEME_ID` |
-| `shopify theme share` | 上传为 unpublished，并给出预览链接 |
-| `shopify theme dev` | 本地 `127.0.0.1` 预览；logout / 会话结束后不可靠 |
-| Dev Store 创建 | `shopify store create dev`；Dev Store **永远有密码页** |
-| 访客访问 | 需商店密码 / Admin 登录 / App Store demo 链接之一 |
-| URL 格式（源码级确认） | `https://${store}?preview_theme_id=${theme.id}` |
+| 创建 | `shopify store create preview --name '…' --json` 成功 |
+| 账号 | 不需要已有 Partner 账号或信用卡 |
+| Admin 写商品 | `productCreate` 的 Active 与 Draft 都成功 |
+| 渠道 | `publishablePublish` 成功；Active 商品出现在 Online Store publication |
+| Admin 读商品 | title / description / seo / media / publications 可读，足够做商品完备性 GEO |
+| Token | CLI 缓存 Admin API token |
+| Scopes | authScopes **包含** `write_products`、`write_themes`、`write_publications` |
+| `shopify store info` | 返回 `accessUrl`、`saveUrl` 与上述 scopes |
 
-**Workshop 应用结论（已证实基础上的产品决策）：**
+**Workshop 应用（决策）：**
 
-- 使用 **Unpublished Theme** + `preview_url`（`preview_theme_id`）
-- **不要**依赖 `theme dev` 的本机预览做现场 GEO
-- **不要** Publish Theme（安全边界保留）
+- 每组现场创建 **一家 Preview Store**。这是主路径。
+- Workshop 不能给每位学员一家 Partner Dev Store，也不课前按人数预开 Dev Store。
+- **Dev Store 只作讲师 fallback**：Preview 创建失败时，讲师挂上自己掌握的备用店。
+- 拒绝学员把自己的正式店接进来。
 
 ---
 
-## 2. Draft 商品 vs 店面可见（已证实）
+## 2. 未登录店面（已证实）
+
+| 请求 | 结果 |
+|---|---|
+| 浏览器打开 `*.myshopify.com` | 「Opening soon」密码页，商品正文不可见 |
+| `/products.json` | **401** |
+| `/sitemap.xml` | **404**（常见） |
+| `robots.txt` | **200**，公开 |
+
+Admin 字段 `onlineStore.passwordProtection.enabled` 为 **true**。这只说明保护开着。
+
+**密码路径经 Admin API 不可行（已核实，不再设计）：**
+
+- 店面密码 **明文不可读**。
+- `onlineStorePasswordProtectionUpdate` **不存在**于这套 Admin API。
+- GEO、连接 skill、编排器都不得读取、下发或写回 Opening soon 密码。
+
+---
+
+## 3. Theme 预览（已证实）
 
 | 事实 | 说明 |
 |---|---|
-| Draft 商品 | **不会**出现在 Storefront API / 正常店面商品页 |
-| 公开 `/products.json` | 只反映**已发布到销售渠道**（通常含 Online Store）的商品 |
-| 密码页 | 主要挡 Online Store **HTML**；对 `/products.json` 不一定挡（行为因店配置而异，见待实测） |
+| `shopify theme pull --live` | 成功；默认 Horizon 为 MAIN，可留作对照 |
+| `shopify theme push --unpublished` | 成功，返回带 `?preview_theme_id=` 的 `previewUrl` |
+| `shopify theme dev` | 本地 `127.0.0.1`；logout / 会话结束后不可靠 |
 
-**硬结论（已证实）：**
+未登录直接打开 `previewUrl` 仍会落到 Opening soon。学员看店面走 `shopify store open` 或 `accessUrl` 会话，再带上 `preview_theme_id`。
 
-- 不能对**纯 Draft**商品做「公开店面 GEO」并指望 sitemap / products.json / 商品 HTML 齐全。
-- 要对预览店面层打分，商品至少需要 **Active** 并发布到 **Online Store** 渠道；Workshop 仍使用**密码保护的 Dev Store**（未真正对公网开放销售）。
+**产品决策：**
+
+- 只写 **Unpublished** Theme，不 Publish Theme。
+- 现场 GEO 与演示不使用 `theme dev`。
 
 ---
 
-## 3. 明确否决
+## 4. Draft 与渠道（已证实）
+
+| 事实 | 说明 |
+|---|---|
+| Draft | 不出现在正常店面商品页 |
+| Active + `publishablePublish` | 可进入 Online Store publication |
+| 未登录 `/products.json` | 即使商品已在渠道上，dry run 仍是 **401** |
+
+**硬结论：**
+
+- 纯 Draft 做不了店面层 GEO。
+- 商品完备性以 **Admin API** 为主，Draft 阶段就可以评数据层。
+- 正式 before/after 仍在「Active + Online Store」之后跑，这样渠道与页面样本对齐。
+- 渠道发布不等于对公网开放销售：未登录访客看到的仍是 Opening soon。
+
+---
+
+## 5. 明确否决
 
 | 否决项 | 原因 |
 |---|---|
-| Draft + Unpublished Theme = 可爬公开店 | Draft 不进店面；未发布主题无稳定公开 HTML |
-| 用完整版 `shopify-geo-eval` 现场跑 | 9+7 维 + 全站抓取，5–10 分钟不可交付 |
-| 以 `theme dev` 本地 URL 作 GEO 证据 | 会话结束后失效，无法复现 |
+| 课前为每位学员 / 每组预开一家 Partner Dev Store | Workshop 发不出这些店；Preview 创建才是主路径 |
+| 把 Opening soon 密码交给 GEO | 明文不可读；没有 `onlineStorePasswordProtectionUpdate` |
+| 未登录爬 `*.myshopify.com`、`/products.json`、sitemap 当主证据 | 密码页、401、404 |
+| Draft + Unpublished = 可爬公开店 | Draft 不进店面；未登录 HTML 不可用 |
+| 现场跑完整版 `shopify-geo-eval` | 9+7 维 + 全站抓取，5–10 分钟不可交付 |
+| 用 `theme dev` 的本机 URL 作证据 | 会话结束后失效 |
 
 ---
 
-## 4. 推荐 Workshop 证据策略（建议 · 待 Dry Run 实测）
+## 6. 证据策略（决策 · owner Jayce）
 
-### 混合证据模型
-
-| 层 | 角色 | 证据 | 适用商品状态 |
+| 层 | 角色 | 怎么取 | 备注 |
 |---|---|---|---|
-| **A. Admin API（主）** | 数据完备性、SEO 字段、属性、FAQ 等 | Admin / GraphQL 商品与 metafield | Draft 也可评**数据层** |
-| **B. Preview 店面（辅）** | 主题 HTML、JSON-LD / schema、页面结构 | 带密码会话抓取 `?preview_theme_id=` 页面 | 商品需 Active + Online Store 才有完整商品页 |
-| **C. 技术可见性（降权）** | robots / sitemap / products.json | 公开或半公开端点 | 仅对已发布 Online Store 商品有意义；密码店可标「受限」 |
+| **A. Admin API（主）** | 商品完备性、SEO 字段、属性、FAQ、媒体、publications | CLI 缓存的 Admin token | Draft 可预检；正式分在渠道发布后 |
+| **B. accessUrl 会话（按需）** | 主题 HTML、JSON-LD / schema、页面结构 | `shopify store info` 的 `accessUrl`，或 `shopify store open` 会话 | 与 `?preview_theme_id=` 一起用；学员可见这条流程 |
+| **C. 技术可见性（降权）** | robots / sitemap / products.json | 只记录未登录结果 | robots 200；products.json 401；sitemap 常 404。标 restricted |
 
-### 推荐现场流程（两阶段商品）
+`accessUrl` 按会话凭证处理：进程内使用，不写入仓库、文档示例或可提交的状态文件。本机 dry run 对 `accessUrl` 出现 **429**。现场与 CI 要限流、退避重试。HTML 抓取失败时降为 `admin_only`，标 restricted。刷新会话用再次 `shopify store info` / `shopify store open`。
+
+### 现场两阶段
 
 ```text
 阶段 1 — 导入与建站
-  商品：Draft（或导入后暂不渠道发布）
-  主题：Unpublished + preview_url
-  可做：Admin 层数据检查、Theme 预览 QA
+  店：store create preview（CLI 缓存 Admin token）
+  商品：Draft
+  主题：Unpublished + previewUrl（?preview_theme_id=）
+  可做：Admin 数据检查；学员用 store open / accessUrl 看预览
 
-阶段 2 — GEO 演示（一键，需确认）
-  商品：升为 Active + 发布到 Online Store 渠道
-  主题：仍 Unpublished（不 Publish Theme）
-  店：Dev Store 密码保护
-  再跑：shopify-geo-eval-workshop（A 主 + B 辅 + C 降权）
+阶段 2 — GEO 演示（需确认）
+  商品：Active + Online Store publication
+  主题：仍 Unpublished
+  证据：A 主 + B（accessUrl，按需）+ C 降权
+  skill：shopify-geo-eval-workshop
 ```
 
-备选：导入时直接 Active + Online Store（仍在密码 Dev Store）。MVP 更推荐两阶段，便于展示「确认后才对店面可见」。
+导入时直接 Active + Online Store 仍可作为备选。MVP 保留两阶段，方便演示「确认后才对店面渠道可见」。
 
-### 评分维度与证据映射（建议）
+### 5 维与证据
 
 | Workshop 5 维 | 主证据 | 备注 |
 |---|---|---|
-| Product Data Completeness 30% | A Admin | Draft 可评 |
-| Search Findability 25% | A + 部分 B | meta 来自 Admin；URL/页文需 B |
-| AI Understandability 20% | A + B schema | 结构化事实 + JSON-LD |
-| Purchase Trust 15% | A + B 政策/FAQ | Brief + 页面 |
-| Technical Visibility 10% | C | 密码店可封顶或标 restriction |
+| Product Data Completeness 30% | A Admin | Draft 可评；dry run 简评约 20 → 75（缺图；`seo.title` 写回待核） |
+| Search Findability 25% | A + 按需 B | meta 来自 Admin；页面 URL/正文需 accessUrl |
+| AI Understandability 20% | A + 按需 B schema | 结构化事实走 Admin；JSON-LD 走 accessUrl |
+| Purchase Trust 15% | A + 按需 B | FAQ / 政策 |
+| Technical Visibility 10% | C | 未登录端点受限时可封顶 |
+
+编排器传给 GEO 的是 **store domain** 和 **accessUrl 会话句柄**（指向当次 `store info` / `store open`），外加 `previewUrl`。没有店面密码字段。
 
 ---
 
-## 5. CLI / 命令清单（实施参考）
+## 7. 命令清单
 
 ```bash
-# 课前：创建 Dev Store（讲师）
-shopify store create dev
+# 现场主路径（每组一家；--name 用小组/品牌名）
+shopify store create preview --name '…' --json
 
-# 主题：推未发布并拿预览
-shopify theme push --unpublished --json
-# → preview_url: https://{shop}.myshopify.com/?preview_theme_id={id}
+# 读域名与 accessUrl（URL 不入库）
+shopify store info
 
-# 或
-shopify theme share
+# 学员可见的店面会话；短链过期后同样用它恢复
+shopify store open
+
+# 未发布主题
+shopify theme push --unpublished
+# previewUrl: https://{shop}.myshopify.com/?preview_theme_id={id}
 ```
 
-Workshop Agent 侧等价能力：Admin API 创建 unpublished theme / 写 asset，或包装 CLI；对外统一产出 `preview_url`。
+讲师 fallback（仅 Preview 创建失败）：使用讲师已有的 Dev Store 连接。GEO 店面仍走该店的 `store info` / `store open` 会话，同样不读取店面密码。
 
 ---
 
-## 6. 待 Dry Run 实测清单
+## 8. 仍待实测
 
-- [ ] 带商店密码的 HTTP 客户端能否稳定抓取 `?preview_theme_id=` 的商品页 HTML 与 JSON-LD  
-- [ ] Active + Online Store + 密码店时，`/products.json` 是否包含 Workshop SKU  
-- [ ] sitemap 在密码 Dev Store 上的可访问性与内容完整性  
-- [ ] `theme push --unpublished` 在预置骨架主题上的耗时（目标 < 3 分钟）  
-- [ ] 一键「Publish products to Online Store」后 GEO before/after 是否可复现涨分  
-- [ ] 多小组并行时 Admin API rate limit  
+- [ ] 浏览器里 `shopify store open` 之后，商品页 HTML 与 JSON-LD 是否稳定可读
+- [ ] `seo.title` 写入后读回为 null 的语义（是否回退 product title）
+- [ ] 约 30 分钟预览链过期后，再次 `store open` 能否恢复 accessUrl 会话
+- [ ] accessUrl **429** 在教室网络 / 多组并发下的重试间隔
+- [ ] 预置骨架上 `theme push --unpublished` 的耗时
+- [ ] 多组并行时 Admin API rate limit
 
-实测结果回填本文件「实测记录」小节，并更新 v0.2 → v0.3 证据策略。
-
-## 7. 实测记录
-
-（Dry Run 后填写）
-
-| 日期 | 操作者 | 结论 | 影响方案条款 |
-|---|---|---|---|
-| — | — | — | — |
+回填到 dry-run 笔记，并同步方案里的证据策略。

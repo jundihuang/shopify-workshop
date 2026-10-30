@@ -48,6 +48,6 @@ CLI 对齐（已证实）：`shopify theme push --unpublished --json` 或 `shopi
 
 ## 验收
 
-- 密码后可打开 Home / Collection / Product  
+- 经 `shopify store open` 或 accessUrl 会话可打开 Home / Collection / Product（未登录裸开是 Opening soon）
 - Brief 色与关键文案生效（非 Fallback 时）  
 - `workshop-state.theme` 已更新  

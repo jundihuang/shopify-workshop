@@ -15,7 +15,7 @@
     "restrictions": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "e.g. password_store_limits_technical_visibility"
+      "description": "e.g. unauthenticated_storefront_restricted, access_url_rate_limited. Do not store an accessUrl or a storefront password."
     },
     "preview_url": { "type": "string" },
     "dimensions": {
