@@ -1,0 +1,37 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": {
+        "heading": "Workshop",
+        "text": ""
+      }
+    },
+    "selling_points": {
+      "type": "selling-points",
+      "settings": {
+        "heading": "Why this brand",
+        "point_1": "",
+        "point_2": "",
+        "point_3": "",
+        "point_4": ""
+      }
+    },
+    "featured_collection": {
+      "type": "featured-collection",
+      "settings": {
+        "heading": "Shop the collection"
+      }
+    },
+    "trust": {
+      "type": "trust",
+      "settings": {
+        "heading": "Good to know",
+        "trust_1": "",
+        "trust_2": "",
+        "trust_3": ""
+      }
+    }
+  },
+  "order": ["hero", "selling_points", "featured_collection", "trust"]
+}

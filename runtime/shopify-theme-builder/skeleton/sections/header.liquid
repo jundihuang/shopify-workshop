@@ -1,0 +1,22 @@
+<header class="site-header">
+  <div class="wrap">
+    <a href="{{ routes.root_url }}">
+      {% if settings.logo contains 'https://' %}
+        <img class="logo" src="{{ settings.logo | escape }}" alt="{{ settings.brand_name | escape }}">
+      {% else %}
+        <strong>{{ settings.brand_name }}</strong>
+      {% endif %}
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="{{ routes.root_url }}">Home</a>
+      <a href="{{ routes.all_products_collection_url }}">Collection</a>
+    </nav>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": []
+}
+{% endschema %}

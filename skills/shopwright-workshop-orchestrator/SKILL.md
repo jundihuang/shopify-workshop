@@ -80,6 +80,30 @@ Active 并发布到 Online Store，主题始终保持 Unpublished。成功后写
 `brand.status` 更新为 `done`（学员答案，缺项用默认值）或 `fallback_demo`（Aurora Skincare）。
 locale / currency 默认 `en-US` / `USD`。不调用 Shopify，不改 Theme，不改商品，不写 `accessUrl`。
 
+## 骨架 Theme 运行时（Brand Brief 之后的下一个 MVP）
+
+`build_theme_from_skeleton` 的已落地命令是：
+
+```bash
+./scripts/shopify-theme-builder.sh plan --group-id A
+# 人工确认 plan 中的色、文案、风险与 participant_confirm_copy 后：
+./scripts/shopify-theme-builder.sh apply --group-id A --confirm
+# 无 Shopify CLI 调用的演练：
+./scripts/shopify-theme-builder.sh apply --group-id A --confirm --dry-run
+# 超时或强制 Demo Theme：
+./scripts/shopify-theme-builder.sh apply --group-id A --confirm --demo
+```
+
+实现见 [runtime/shopify-theme-builder](../../runtime/shopify-theme-builder/)。它只接受 Preview Store +
+`write_themes`，从 `.workshop/<group_id>/brand-brief.json` 填充预置骨架的 settings 与
+Home / Collection / Product section，然后 `shopify theme push --unpublished --json`
+（仅当 CLI 没有 `--unpublished` 时才改用 `theme share --json`）。成功后写
+`theme.manifest.json`，并把 `theme.theme_id`、`theme.status`（`unpublished` 或 `fallback`）、
+`theme.preview_url`、`theme.fallback_used` 写入 `workshop-state.yaml`。
+`preview_url` 固定为 `https://{store}/?preview_theme_id={id}`。上传超过约 3.5 分钟或失败时挂
+`templates/theme.manifest.demo.json` 描述的 Demo Theme，`fallback_used=true`。
+`apply` 缺少 `--confirm` 必须拒绝。不发布主题，不改商品渠道，不写 `accessUrl`。
+
 ## 交给 GEO 的连接信息
 
 `run_geo_eval_before` / `run_geo_eval_after` 只接收：
@@ -104,7 +128,7 @@ theme.preview_url             # unpublished，含 ?preview_theme_id=
 - `connection.storefront_session`：`access_url` | `none`
 - `products.channel_status`：`draft` | `online_store_active`
 - `brand.brief_file`，`brand.status`：`pending` | `done` | `fallback_demo`
-- `theme.preview_url`，`theme.fallback_used`
+- `theme.theme_id`，`theme.status`：`unpublished` | `fallback`，`theme.preview_url`，`theme.fallback_used`
 - `geo.evidence_mode`，`geo.before_score`，`geo.after_score`
 - `geo.optimizer_status`：如 `approved_p0_batch`
 

@@ -10,7 +10,7 @@ Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 4. 填充 Unpublished Theme 并拿到带 `?preview_theme_id=` 的 `previewUrl`  
 5. 用 Workshop 版 GEO 打分 → 批量确认 P0 优化 → 再打分  
 
-本仓库以**方案与 Skill 契约**为主，已落地四个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）、[runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（GEO 前人工确认：商品 Active + Online Store，Theme 保持 Unpublished）与 [runtime/brand-intake](runtime/brand-intake/)（Brand Brief：把学员答案整理成 schema 校验过的 `brand-brief.json`，超时可加载 Aurora Skincare Demo Brief；只写本地 JSON）。Theme 与 GEO 仍按 `docs/` 与各 `skills/*/SKILL.md` 落地。
+本仓库以**方案与 Skill 契约**为主，已落地五个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）、[runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（GEO 前人工确认：商品 Active + Online Store，Theme 保持 Unpublished）、[runtime/brand-intake](runtime/brand-intake/)（Brand Brief：把学员答案整理成 schema 校验过的 `brand-brief.json`，超时可加载 Aurora Skincare Demo Brief；只写本地 JSON）与 [runtime/shopify-theme-builder](runtime/shopify-theme-builder/)（骨架填充 Brand Brief，`shopify theme push --unpublished`，返回带 `?preview_theme_id=` 的 `preview_url`；超时挂 Demo Theme，不发布主题）。GEO 仍按 `docs/` 与各 `skills/*/SKILL.md` 落地。
 
 商品导入主 Demo 使用合作伙伴 [INFLATION / inflationwear.com](https://inflationwear.com/collections/tshirt) 的公开商品样例（8 SKU）：
 
@@ -60,6 +60,23 @@ Brand Brief 是渠道发布之后落地的下一个 MVP。现场顺序仍在骨�
 
 `plan` 校验答案并列出 `missing[]` 与夸大/医疗风险，不写最终 brief。`apply` 必须带 `--confirm`（含 `--dry-run`）。成功后写入 `.workshop/<group_id>/brand-brief.json`，并把 `workshop-state.yaml` 的 `brand.status` 更新为 `done` 或 `fallback_demo`。locale / currency 默认 `en-US` / `USD`。这一步不调用 Shopify，不改 Theme，不改商品，不写 `accessUrl`。
 
+Unpublished Theme 是 Brand Brief 之后落地的下一个 MVP。它只填充预置骨架，不从零生成整站：
+
+```bash
+./scripts/shopify-theme-builder.sh plan --group-id A
+
+# 人工审阅色、文案与风险后：
+./scripts/shopify-theme-builder.sh apply --group-id A --confirm
+
+# 不调用 Shopify CLI，写入 fixture manifest：
+./scripts/shopify-theme-builder.sh apply --group-id A --confirm --dry-run
+
+# 超时或强制改挂文档中的 Demo Theme：
+./scripts/shopify-theme-builder.sh apply --group-id A --confirm --demo
+```
+
+`plan` 读取 `.workshop/<group_id>/brand-brief.json` 和 `connection.json`，只接受 Preview Store，列出将写入的 settings / sections 与风险，不 push。`apply` 必须带 `--confirm`（含 `--dry-run`）。成功后写 `theme.manifest.json`，并把 `workshop-state.yaml` 的 `theme.status` 更新为 `unpublished` 或 `fallback`。`preview_url` 形如 `https://{store}/?preview_theme_id={id}`。真实上传用 `shopify theme push --unpublished --json`；只有 CLI 不提供该标志时才改用 `theme share --json`。超过约 3.5 分钟（上限 4 分钟）或上传失败时挂 Demo Theme（`fallback_used=true`）。这一步不发布主题，不改商品渠道，不写 `accessUrl`。
+
 ## 文档导航
 
 | 文档 | 用途 |
@@ -105,7 +122,7 @@ shopify-geo-optimizer              P0 批量确认 + 写回
 
 ## 模板与样例
 
-见 `templates/`：Excel 字段说明、Brand Brief schema、[Demo Brief（Aurora Skincare）](templates/brand-brief.demo.aurora-skincare.json)、[学员答案样例](templates/brand-intake.answers.sample.json)、workshop-state / geo-score schema。
+见 `templates/`：Excel 字段说明、Brand Brief schema、[Demo Brief（Aurora Skincare）](templates/brand-brief.demo.aurora-skincare.json)、[学员答案样例](templates/brand-intake.answers.sample.json)、[Demo Theme manifest](templates/theme.manifest.demo.json)、workshop-state / geo-score schema。主题骨架在 [runtime/shopify-theme-builder/skeleton](runtime/shopify-theme-builder/skeleton/)。
 
 商品导入样例优先使用：[templates/products.inflationwear-tshirt.sample.csv](templates/products.inflationwear-tshirt.sample.csv)、[templates/products.inflationwear-tshirt.sample.xlsx](templates/products.inflationwear-tshirt.sample.xlsx)，来源与授权说明见 [templates/products.inflationwear-tshirt.README.md](templates/products.inflationwear-tshirt.README.md)。`templates/products.sample.csv` 仅保留为极小 fallback。
 

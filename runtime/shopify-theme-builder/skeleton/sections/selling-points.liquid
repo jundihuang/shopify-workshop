@@ -1,0 +1,23 @@
+<section class="card wrap">
+  <h2>{{ section.settings.heading }}</h2>
+  <ul>
+    {% if section.settings.point_1 != blank %}<li>{{ section.settings.point_1 }}</li>{% endif %}
+    {% if section.settings.point_2 != blank %}<li>{{ section.settings.point_2 }}</li>{% endif %}
+    {% if section.settings.point_3 != blank %}<li>{{ section.settings.point_3 }}</li>{% endif %}
+    {% if section.settings.point_4 != blank %}<li>{{ section.settings.point_4 }}</li>{% endif %}
+  </ul>
+</section>
+
+{% schema %}
+{
+  "name": "Selling points",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Why this brand" },
+    { "type": "text", "id": "point_1", "label": "Point 1", "default": "" },
+    { "type": "text", "id": "point_2", "label": "Point 2", "default": "" },
+    { "type": "text", "id": "point_3", "label": "Point 3", "default": "" },
+    { "type": "text", "id": "point_4", "label": "Point 4", "default": "" }
+  ],
+  "presets": [{ "name": "Selling points" }]
+}
+{% endschema %}

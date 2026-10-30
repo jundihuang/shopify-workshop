@@ -1,0 +1,57 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "ShopWright Workshop Skeleton",
+    "theme_version": "0.1.0",
+    "theme_author": "ShopWright Workshop",
+    "theme_documentation_url": "https://github.com/jundihuang/shopify-workshop",
+    "theme_support_url": "https://github.com/jundihuang/shopify-workshop"
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      {
+        "type": "text",
+        "id": "brand_name",
+        "label": "Brand name",
+        "default": "Workshop"
+      },
+      {
+        "type": "text",
+        "id": "tagline",
+        "label": "Tagline",
+        "default": ""
+      },
+      {
+        "type": "textarea",
+        "id": "positioning",
+        "label": "Positioning",
+        "default": ""
+      },
+      {
+        "type": "text",
+        "id": "logo",
+        "label": "Logo reference",
+        "default": ""
+      },
+      {
+        "type": "color",
+        "id": "color_primary",
+        "label": "Primary color",
+        "default": "#1F4E5F"
+      },
+      {
+        "type": "color",
+        "id": "color_secondary",
+        "label": "Secondary color",
+        "default": "#F3EDE4"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Text color",
+        "default": "#1C1C1C"
+      }
+    ]
+  }
+]

@@ -1,0 +1,14 @@
+<section class="card wrap">
+  <h2>{{ section.settings.heading }}</h2>
+  <a class="button" href="{{ routes.all_products_collection_url }}">{{ section.settings.heading }}</a>
+</section>
+
+{% schema %}
+{
+  "name": "Featured collection",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop the collection" }
+  ],
+  "presets": [{ "name": "Featured collection" }]
+}
+{% endschema %}

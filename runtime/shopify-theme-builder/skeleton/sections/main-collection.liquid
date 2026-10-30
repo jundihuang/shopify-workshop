@@ -1,0 +1,23 @@
+<section class="wrap">
+  <h1>{{ collection.title }}</h1>
+  {% if section.settings.intro != blank %}
+    <p>{{ section.settings.intro }}</p>
+  {% endif %}
+  <div class="grid">
+    {% for product in collection.products limit: 12 %}
+      <article class="product-card">
+        <a href="{{ product.url }}">{{ product.title }}</a>
+        <p>{{ product.price | money }}</p>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Collection",
+  "settings": [
+    { "type": "textarea", "id": "intro", "label": "Intro", "default": "" }
+  ]
+}
+{% endschema %}
