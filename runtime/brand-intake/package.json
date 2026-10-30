@@ -1,0 +1,17 @@
+{
+  "name": "brand-intake-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Workshop brand-intake runtime: normalize student brand answers into a schema-valid brand-brief.json. Local JSON only; no Shopify calls.",
+  "type": "module",
+  "bin": {
+    "brand-intake": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
