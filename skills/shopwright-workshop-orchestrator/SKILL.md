@@ -44,6 +44,24 @@ create_preview_store
 
 委托子 skill：`shopify-store-connect`、`product-excel-import`、`brand-intake`、`shopify-theme-builder`、`shopify-geo-eval-workshop`、`shopify-geo-optimizer`。
 
+## 商品渠道发布运行时（GEO 前确认步）
+
+`confirm_publish_products_for_geo` 的已落地命令是：
+
+```bash
+./scripts/publish-products-for-geo.sh plan --group-id A
+# 人工确认 plan 中的 participant_confirm_copy / risk_one_liner 后：
+./scripts/publish-products-for-geo.sh apply --group-id A --confirm
+# 无网络演练：
+./scripts/publish-products-for-geo.sh apply --group-id A --confirm --dry-run
+```
+
+实现见 [runtime/publish-products-for-geo](../../runtime/publish-products-for-geo/)。它只接受 Preview Store +
+`write_products` / `write_publications`，只处理本组 import result 或显式 `--product-id`；将商品设为
+Active 并发布到 Online Store，主题始终保持 Unpublished。成功后写
+`products.channel.json` 并把 `workshop-state.yaml` 的 `products.channel_status` 更新为
+`online_store_active`。`apply` 缺少 `--confirm` 必须拒绝。
+
 ## 交给 GEO 的连接信息
 
 `run_geo_eval_before` / `run_geo_eval_after` 只接收：

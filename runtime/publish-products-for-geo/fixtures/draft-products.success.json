@@ -1,0 +1,20 @@
+{
+  "data": {
+    "products": {
+      "nodes": [
+        {
+          "id": "gid://shopify/Product/9000001001",
+          "handle": "soft-touch-100-cotton-blank-t-shirt-inflation-streetwear",
+          "title": "Heavyweight Cotton Oversized T-Shirt",
+          "status": "DRAFT"
+        },
+        {
+          "id": "gid://shopify/Product/9000001002",
+          "handle": "boxy-camo-tees-inflation-streetwear",
+          "title": "Boxy Camo Tees",
+          "status": "DRAFT"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "publication": {
+    "id": "gid://shopify/Publication/7000000001",
+    "name": "Online Store"
+  },
+  "productUpdate": {
+    "product": {
+      "id": "gid://shopify/Product/9000001001",
+      "status": "ACTIVE"
+    },
+    "userErrors": []
+  },
+  "publishablePublish": {
+    "userErrors": []
+  }
+}
