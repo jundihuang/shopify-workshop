@@ -9,9 +9,11 @@ Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 3. 确认把商品发布到 Online Store 渠道（主题保持 Unpublished）  
 4. 生成 Brand Brief  
 5. 填充 Unpublished Theme 并拿到带 `?preview_theme_id=` 的 `previewUrl`  
-6. 用 Workshop 版 GEO 打分 → 批量确认 P0 优化 → 再打分  
+6. 用 Workshop 版 GEO 打 before 分  
+7. 批量确认 P0 优化并再打分  
+8. 写出 Workshop Summary（`workshop-summary.md` / `workshop-summary.html`）  
 
-本仓库以**方案与 Skill 契约**为主，已落地七个可运行 MVP：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）、[runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（Step 3：GEO 前人工确认，商品 Active + Online Store，Theme 保持 Unpublished）、[runtime/brand-intake](runtime/brand-intake/)（Step 4：Brand Brief，把学员答案整理成 schema 校验过的 `brand-brief.json`，超时可加载 Aurora Skincare Demo Brief；只写本地 JSON）、[runtime/shopify-theme-builder](runtime/shopify-theme-builder/)（Step 5：骨架填充 Brand Brief，`shopify theme push --unpublished`，返回带 `?preview_theme_id=` 的 `preview_url`；超时挂 Demo Theme，不发布主题）、[runtime/shopify-geo-eval-workshop](runtime/shopify-geo-eval-workshop/)（Step 6：Workshop 5 维 GEO before 分，只读 Admin 字段，最多 10 个商品；HTML 可选且不落 accessUrl）与 [runtime/shopify-geo-optimizer](runtime/shopify-geo-optimizer/)（Step 7：按 workshop scorecard 和 Brand Brief 生成 P0 before/after，确认后写回并再评分；不携带完整版诊断）。
+本仓库以**方案与 Skill 契约**为主，已落地七个 Skill 的可运行步骤，以及总控链尾的 Summary 运行时：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）、[runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（Step 3：GEO 前人工确认，商品 Active + Online Store，Theme 保持 Unpublished）、[runtime/brand-intake](runtime/brand-intake/)（Step 4：Brand Brief，把学员答案整理成 schema 校验过的 `brand-brief.json`，超时可加载 Aurora Skincare Demo Brief；只写本地 JSON）、[runtime/shopify-theme-builder](runtime/shopify-theme-builder/)（Step 5：骨架填充 Brand Brief，`shopify theme push --unpublished`，返回带 `?preview_theme_id=` 的 `preview_url`；超时挂 Demo Theme，不发布主题）、[runtime/shopify-geo-eval-workshop](runtime/shopify-geo-eval-workshop/)（Step 6：Workshop 5 维 GEO before 分，只读 Admin 字段，最多 10 个商品；HTML 可选且不落 accessUrl）、[runtime/shopify-geo-optimizer](runtime/shopify-geo-optimizer/)（Step 7：按 workshop scorecard 和 Brand Brief 生成 P0 before/after，确认后写回并再评分；不携带完整版诊断）与 [runtime/workshop-summary](runtime/workshop-summary/)（Step 8：读取本组产物，写出 `workshop-summary.md` / `.html`；不调用 Shopify）。
 
 商品导入主 Demo 使用合作伙伴 [INFLATION / inflationwear.com](https://inflationwear.com/collections/tshirt) 的公开商品样例（8 SKU）：
 
@@ -106,6 +108,20 @@ P0 写回是 before 分之后的下一步。建议只来自 workshop scorecard �
 
 `plan` 读 `geo.before.json` 和 `brand-brief.json`，写出 `geo.proposal.json`，不写 Admin。`apply` 必须带 `--confirm`。`--approve-all-p0` 一次批准 title、description、meta title、meta description 和 key attributes；P1 折叠可跳过；精审最多 1–2 个商品。没有已批准集合时拒绝写回。只接受 Preview Store。文案带品类、卖点和场景，并去掉 `tone.avoid` 和医疗/夸大说法。真实写回后调用 `shopify-geo-eval-workshop --phase after`。`--dry-run` 不访问 Shopify，也不再评分。它写入 `fixtures/geo.after.json`（8 个 Inflation Wear 样例商品）；before scorecard 同样是 8 个商品时，按顺序改用 before 的 handle，并把 `store` 改成本组店铺。这一步不发布主题，不把 accessUrl 写入产物。
 
+Workshop Summary 是优化器之后的最后一步。它不调用 Shopify，只读本组已有产物：
+
+```bash
+./scripts/workshop-summary.sh plan --group-id A
+
+# 人工确认交付清单后：
+./scripts/workshop-summary.sh apply --group-id A --confirm
+
+# 缺的产物用 fixture 补齐，已有文件保持原样：
+./scripts/workshop-summary.sh apply --group-id A --confirm --dry-run
+```
+
+`plan` 写 `workshop-summary.plan.json`，不写最终页。`apply` 必须带 `--confirm`（含 `--dry-run`）。成功后写 `.workshop/<group_id>/workshop-summary.md`、`workshop-summary.html` 和 `workshop-summary.json`，并把 `workshop-state.yaml` 的 `summary.status` 更新为 `done` 或 `demo`。页面包含交付清单、workshop 5 维 before/after、已批 P0 摘要和未发布主题的 `preview_theme_id` 链接。分数只来自 `shopify-geo-eval-workshop`。`--dry-run` 不回写 `geo.after.json`。这一步不发布主题，不改商品，不写 accessUrl。
+
 ## 文档导航
 
 | 文档 | 用途 |
@@ -129,7 +145,7 @@ shopify-geo-eval-workshop          Workshop 简化 GEO（独立于完整版）
 shopify-geo-optimizer              P0 批量确认 + 写回
 ```
 
-渠道发布不是单独 skill。现场顺序是 `publish-products-for-geo` 运行时接在导入之后、Brand Brief 之前。完整版客户诊断 skill `shopify-geo-eval`（9+7 维爬虫流水线）**不在本仓库**，现场禁止直接调用。
+渠道发布不是单独 skill。现场顺序是 `publish-products-for-geo` 运行时接在导入之后、Brand Brief 之前。Workshop Summary 也不是单独 skill，它是 orchestrator 的最后一步，运行时在 [runtime/workshop-summary](runtime/workshop-summary/)。完整版客户诊断 skill `shopify-geo-eval`（9+7 维爬虫流水线）**不在本仓库**，现场禁止直接调用。
 
 ## 安全边界（硬规则）
 

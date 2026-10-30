@@ -214,6 +214,18 @@ start
 - 能判断下一步；防止跳过必要确认。
 - 能生成 Workshop Summary。
 
+#### 运行时（`generate_workshop_summary`）
+
+链尾命令，接在 `shopify-geo-optimizer` 之后。不新开 Skill，不调用 Shopify：
+
+```bash
+./scripts/workshop-summary.sh plan --group-id A
+./scripts/workshop-summary.sh apply --group-id A --confirm
+./scripts/workshop-summary.sh apply --group-id A --confirm --dry-run
+```
+
+`apply` 读取本组 connection、导入/渠道、Brand Brief、theme、`geo.before` / `geo.proposal` / `geo.approved` / `geo.after`，写出 `workshop-summary.md` 与 `workshop-summary.html`（另写 `workshop-summary.json`，并更新 `summary.status`）。`--dry-run` 只在产物缺失时用 fixture 补齐这一份，不回写前面步骤的文件。分数口径保持 workshop 5 维，不读取完整版诊断。
+
 ---
 
 ### 5.2 `shopify-store-connect`

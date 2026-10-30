@@ -136,6 +136,24 @@ HTML 只用编排器传来的 `storefront_session=access_url` 句柄，在运行
 
 写回后调用 `shopify-geo-eval-workshop apply --confirm --phase after`，得到 `geo.after.json`，并更新 `geo.after_score` 与 `geo.optimizer_status`（批 P0 为 `approved_p0_batch`）。`--dry-run` 不调用 Shopify，写入 fixture after 分。不把 accessUrl、token、店面密码写入产物，不发布主题。
 
+## Workshop Summary（链尾）
+
+`generate_workshop_summary` 的已落地命令是：
+
+```bash
+./scripts/workshop-summary.sh plan --group-id A
+# 人工确认交付清单与 participant_confirm_copy 后：
+./scripts/workshop-summary.sh apply --group-id A --confirm
+# 产物不齐时用 fixture 补齐，不访问网络：
+./scripts/workshop-summary.sh apply --group-id A --confirm --dry-run
+```
+
+实现见 [runtime/workshop-summary](../../runtime/workshop-summary/)。它是总控的最后一步，不新开 Skill，也不调用 Shopify CLI / Admin。`plan` 只盘点本组产物并写 `workshop-summary.plan.json`。`apply` 必须带 `--confirm`（含 `--dry-run`）。它读取 connection、导入结果、渠道状态、`brand-brief.json`、theme manifest、`geo.before` / `geo.proposal` / `geo.approved` / `geo.after`，写出 `workshop-summary.md`、`workshop-summary.html` 和 `workshop-summary.json`，并把 `summary.status` 写入 `workshop-state.yaml`。
+
+`--dry-run` 在某份产物缺失或读不出时，用 `runtime/workshop-summary/fixtures/` 补齐这一份；已经在组目录里的文件保持原样。演练补齐不会回写 `geo.after.json` 或其他步骤的产物。`summary.status` 在演练时为 `demo`，现场确认为 `done`。
+
+分数只接受 `shopify-geo-eval-workshop` 的 5 维 scorecard。不读取完整版诊断，不发布主题，不改商品，不把 accessUrl、token 或店面密码写入 Summary。
+
 ## 交给 GEO 的连接信息
 
 `run_geo_eval_before` / `run_geo_eval_after` 只接收：
@@ -163,6 +181,7 @@ theme.preview_url             # unpublished，含 ?preview_theme_id=
 - `theme.theme_id`，`theme.status`：`unpublished` | `fallback`，`theme.preview_url`，`theme.fallback_used`
 - `geo.evidence_mode`，`geo.before_score`，`geo.after_score`
 - `geo.optimizer_status`：如 `approved_p0_batch`
+- `summary.status`：`done` | `demo`；`summary.before_score`，`summary.after_score`，`summary.improvement`
 
 ## 人工确认点（必须挡住）
 

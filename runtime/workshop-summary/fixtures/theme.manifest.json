@@ -1,0 +1,11 @@
+{
+  "theme_id": 123456,
+  "status": "unpublished",
+  "preview_url": "https://aurora-workshop-mvp.myshopify.com/?preview_theme_id=123456",
+  "fallback_used": false,
+  "pages": ["home", "collection", "product"],
+  "store": "aurora-workshop-mvp.myshopify.com",
+  "store_type": "preview",
+  "live_theme_touched": false,
+  "theme_publish_invoked": false
+}

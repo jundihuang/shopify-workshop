@@ -1,0 +1,26 @@
+{
+  "store": "aurora-workshop-mvp.myshopify.com",
+  "geo_score": 35,
+  "grade": "D",
+  "evidence_mode": "admin_only",
+  "restrictions": ["html_evidence_skipped", "unauthenticated_storefront_restricted"],
+  "dimensions": {
+    "product_data_completeness": 40,
+    "search_findability": 30,
+    "ai_understandability": 28,
+    "purchase_trust": 40,
+    "technical_visibility": 40
+  },
+  "top_issues": [
+    {
+      "issue": "Some product titles are missing or too short.",
+      "impact": "The item is harder to identify in search and in an assistant answer.",
+      "priority": "P0"
+    }
+  ],
+  "products": [
+    { "handle": "daily-serum", "score": 22, "priority": "P0" },
+    { "handle": "night-cream", "score": 24, "priority": "P0" }
+  ],
+  "skill": "shopify-geo-eval-workshop"
+}
