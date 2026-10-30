@@ -45,7 +45,7 @@ Copy constraints:
 - Drop medical and hype wording (cure, heal, miracle, guaranteed, and the same family of phrases).
 - Meta title is about 60 characters. Meta description is about 150 characters.
 
-`--dry-run` does not call Shopify and does not invoke the eval runtime. It writes `fixtures/geo.after.json` (store and handles aligned to the group) and sets `after_score` from that fixture.
+`--dry-run` does not call Shopify and does not invoke the eval runtime. It writes `fixtures/geo.after.json` and sets `after_score` from that fixture. The fixture lists the 8 Inflation Wear workshop products. When the before scorecard has the same product count, dry-run copies those handles onto the after score and rewrites `store` to the group shop.
 
 A live apply calls Admin `productUpdate` for the approved P0 fields, then:
 

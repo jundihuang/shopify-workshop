@@ -12,7 +12,8 @@ student answers (or the Aurora Skincare Demo Brief)
        set brand.status to done or fallback_demo
 ```
 
-This step is local JSON only. It does not call Shopify, publish a theme, or
+In the workshop chain this step runs after channel publish and before the theme
+builder. It is local JSON only. It does not call Shopify, publish a theme, or
 change products.
 
 ## Requirements

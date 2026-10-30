@@ -258,6 +258,16 @@ test("dry-run approve-all-p0 writes fixtures and does not call Shopify", async (
   const temp = await mkdtemp(path.join(os.tmpdir(), "opt-dry-"));
   try {
     const { workdir, groupDir } = await setupGroup(temp);
+    const evalProducts = JSON.parse(
+      await readFile(path.join(repoRoot, "runtime/shopify-geo-eval-workshop/fixtures/admin-products.success.json"), "utf8"),
+    );
+    const before = JSON.parse(await readFile(path.join(groupDir, "geo.before.json"), "utf8"));
+    const thin = before.products[0];
+    before.products = evalProducts.products.map((product) => ({
+      ...thin,
+      handle: product.handle,
+    }));
+    await writeFile(path.join(groupDir, "geo.before.json"), `${JSON.stringify(before, null, 2)}\n`);
     const shopify = await installFake(temp, "shopify", fakeShopifySource());
     const evalCli = await installFake(temp, "eval.js", fakeEvalSource());
     const shopifyLog = path.join(temp, "shopify.log");
@@ -297,6 +307,16 @@ test("dry-run approve-all-p0 writes fixtures and does not call Shopify", async (
     assert.deepEqual(validateGeoScore(after, schema), []);
     assert.equal(after.skill, "shopify-geo-eval-workshop");
     assert.equal(after.geo_score, 74);
+    assert.equal(after.store, store);
+    assert.equal(after.products.length, 8);
+    assert.deepEqual(
+      after.products.map((product) => product.handle),
+      before.products.map((product) => product.handle),
+    );
+    assert.equal(
+      after.products.some((product) => product.handle === "daily-serum" || product.handle === "night-cream"),
+      false,
+    );
     const state = await readFile(path.join(groupDir, "workshop-state.yaml"), "utf8");
     assert.match(state, /after_score: 74/);
     assert.match(state, /optimizer_status: approved_p0_batch/);

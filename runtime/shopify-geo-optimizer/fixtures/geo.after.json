@@ -23,7 +23,17 @@
   ],
   "products": [
     {
-      "handle": "daily-serum",
+      "handle": "soft-touch-100-cotton-blank-t-shirt-inflation-streetwear",
+      "score": 78,
+      "issues": [],
+      "priority": "P2",
+      "missing_fields": [],
+      "schema_status": "not_checked",
+      "seo_status": "present",
+      "ai_readability_status": "clear"
+    },
+    {
+      "handle": "boxy-camo-tees-inflation-streetwear",
       "score": 76,
       "issues": [],
       "priority": "P2",
@@ -33,8 +43,58 @@
       "ai_readability_status": "clear"
     },
     {
-      "handle": "night-cream",
+      "handle": "waffle-graphic-henley-long-sleeve-t-shirt-inflation-streetwear",
+      "score": 80,
+      "issues": [],
+      "priority": "P2",
+      "missing_fields": [],
+      "schema_status": "not_checked",
+      "seo_status": "present",
+      "ai_readability_status": "clear"
+    },
+    {
+      "handle": "blank-oversized-boxy-tees-inflation-streetwear",
       "score": 74,
+      "issues": [],
+      "priority": "P2",
+      "missing_fields": [],
+      "schema_status": "not_checked",
+      "seo_status": "present",
+      "ai_readability_status": "clear"
+    },
+    {
+      "handle": "heavyweight-oversized-washed-tees-inflation-streetwear",
+      "score": 77,
+      "issues": [],
+      "priority": "P2",
+      "missing_fields": [],
+      "schema_status": "not_checked",
+      "seo_status": "present",
+      "ai_readability_status": "clear"
+    },
+    {
+      "handle": "patchwork-washed-graphic-t-shirt-inflation-streetwear",
+      "score": 75,
+      "issues": [],
+      "priority": "P2",
+      "missing_fields": [],
+      "schema_status": "not_checked",
+      "seo_status": "present",
+      "ai_readability_status": "clear"
+    },
+    {
+      "handle": "distressed-boxy-washed-tees-inflation-streetwear",
+      "score": 73,
+      "issues": [],
+      "priority": "P2",
+      "missing_fields": [],
+      "schema_status": "not_checked",
+      "seo_status": "present",
+      "ai_readability_status": "clear"
+    },
+    {
+      "handle": "pink-x-ray-skeleton-boxy-t-shirt-inflation-streetwear",
+      "score": 72,
       "issues": [],
       "priority": "P2",
       "missing_fields": [],

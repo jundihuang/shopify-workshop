@@ -85,7 +85,7 @@ title, description, meta_title, meta_description, key_attributes
 - 只接受 Preview Store。`--password` 直接拒绝。
 - 真实写回用 Admin `productUpdate`，不发布主题，不改渠道。
 - 写回之后执行 `shopify-geo-eval-workshop apply --confirm --phase after`。那个命令只写 `geo.after.json` 和 `geo.after_score`，不覆盖 before 分。
-- `--dry-run` 不调用 Shopify，也不调用再评分。它写入 `fixtures/geo.after.json` 这份假 after 分。
+- `--dry-run` 不调用 Shopify，也不调用再评分。它写入 `fixtures/geo.after.json`：8 个 Inflation Wear 样例商品。before scorecard 也是 8 个商品时，按顺序改用 before 的 handle，并把 `store` 改成本组店铺。
 - 可以写店铺域名。禁止写入 accessUrl、Admin token、店面密码。
 
 ## 验收

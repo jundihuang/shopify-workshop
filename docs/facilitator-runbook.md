@@ -30,8 +30,8 @@ GEO 店面用 `shopify store info` / `shopify store open` 的 `accessUrl` 会话
 - [ ] `store create preview` → scopes_ok，`store info` 出现 accessUrl 字段（值不写进笔记）
 - [ ] `shopify store open` 能看见店面
 - [ ] 样例 CSV 导入 ≥ 5 SKU
+- [ ] 商品升 Active + Online Store（`publishablePublish`）；主题不发布
 - [ ] Brief → 骨架 Theme → `previewUrl`（`?preview_theme_id=`）在 access 会话里可开
-- [ ] 商品升 Active + Online Store（`publishablePublish`）
 - [ ] Workshop GEO before → 批 P0 → after 涨分可复现（Admin 主证据）
 - [ ] 坏 Excel / 断图 / Theme 超时 / Preview 创建失败 四类异常演练
 - [ ] 确认评测脚本没有「读取店面密码」分支
@@ -66,9 +66,9 @@ GEO 店面用 `shopify store info` / `shopify store open` 的 `accessUrl` 会话
 | 00:00–00:10 | 开场 | 强调店是当场 Preview Store，不动学员正式店；展示最终 Summary |
 | 00:10–00:15 | 创建 Preview Store | 学员可看见 `store open` / access 流程。失败时现场排障（重试/换名/查 CLI/网络）；仍失败则本组暂停由讲师协助，禁止现场教 OAuth |
 | 00:15–00:30 | 导入商品 | 卡住用样例包；不要修复杂 Excel |
-| 00:30–00:40 | Brand Brief | 超时「用默认 Brief」 |
-| 00:40–00:55 | Theme | 超时切 Demo Theme；`previewUrl` 仍靠该组 access 会话打开 |
-| 00:55–00:58 | 发布商品到渠道 | 全员统一确认；主题不发布 |
+| 00:30–00:33 | 发布商品到渠道 | 全员统一确认；主题不发布。这一步不依赖 Theme |
+| 00:33–00:43 | Brand Brief | 超时「用默认 Brief」 |
+| 00:43–00:58 | Theme | 超时切 Demo Theme；`previewUrl` 仍靠该组 access 会话打开 |
 | 00:58–01:05 | GEO Before | workshop 版；Admin 主证据。禁止开完整爬虫，禁止要密码 |
 | 01:05–01:15 | 批 P0 + 精审 1–2 SKU | 禁止逐条审完全部 |
 | 01:15–01:30 | After + Summary + 收尾 | 拍照打卡；收集反馈。截图打码，避免把 accessUrl 拍进可公开材料 |

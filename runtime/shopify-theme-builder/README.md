@@ -13,8 +13,10 @@ brand-intake (brand-brief.json) + shopify-store-connect (connection.json)
        write theme.manifest.json + theme.preview_url
 ```
 
-This step does not generate a Liquid theme from scratch, does not publish the
-live theme, and does not change product status or sales channels.
+Workshop chain: channel publish, then brand-intake, then this step, then GEO.
+This runtime requires `brand-brief.json` and does not require products to be
+published. It does not generate a Liquid theme from scratch, does not publish
+the live theme, and does not change product status or sales channels.
 
 ## Requirements
 

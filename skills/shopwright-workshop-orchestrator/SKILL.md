@@ -1,8 +1,8 @@
 ---
 name: shopwright-workshop-orchestrator
 description: >-
-  ShopWright Workshop 总控：创建 Preview Store → 导入 → Brief → 骨架 Theme →
-  商品渠道发布 → Workshop GEO before → 批 P0 优化 → after → Summary。
+  ShopWright Workshop 总控：创建 Preview Store → 导入 → 商品渠道发布 →
+  Brief → 骨架 Theme → Workshop GEO before → 批 P0 优化 → after → Summary。
   把店铺域名和 accessUrl 会话句柄交给 GEO。不实现店面密码传递。
   用于 Google×Beansmile 现场动手课，不是完整建站产品。
 ---
@@ -31,9 +31,9 @@ description: >-
 ```text
 create_preview_store
   → import_products
+  → confirm_publish_products_for_geo
   → create_brand_brief
   → build_theme_from_skeleton
-  → confirm_publish_products_for_geo
   → run_geo_eval_before
   → propose_geo_optimizations
   → human_review_p0_batch
@@ -74,7 +74,7 @@ Active 并发布到 Online Store，主题始终保持 Unpublished。成功后写
 ./scripts/brand-intake.sh apply --group-id A --confirm --demo --dry-run
 ```
 
-现场顺序仍是导入之后、骨架 Theme 之前。实现见 [runtime/brand-intake](../../runtime/brand-intake/)。
+现场顺序是渠道发布之后、骨架 Theme 之前。实现见 [runtime/brand-intake](../../runtime/brand-intake/)。
 它只写本地 JSON：`plan` 校验并列出 `missing[]` 与夸大/医疗风险，不落最终 brief；`apply` 必须带
 `--confirm`（含 `--dry-run`）。成功后写 `.workshop/<group_id>/brand-brief.json`，并把
 `brand.status` 更新为 `done`（学员答案，缺项用默认值）或 `fallback_demo`（Aurora Skincare）。
@@ -168,9 +168,9 @@ theme.preview_url             # unpublished，含 ?preview_theme_id=
 
 1. 确认创建并连接 Preview Store（失败时现场排障；必要时该组暂停）
 2. Excel 导入
-3. Brand Brief 锁定
-4. Theme 创建或 Demo Theme Fallback
-5. 商品 Active + Online Store（GEO 前）
+3. 商品 Active + Online Store（GEO 前；不依赖主题）
+4. Brand Brief 锁定
+5. Theme 创建或 Demo Theme Fallback
 6. 批准全部 P0（+ 可选精审）
 7. 生成最终 Summary
 

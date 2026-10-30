@@ -13,6 +13,10 @@ shopify-store-connect + imported products
        write geo.before.json + geo.before.md
 ```
 
+Workshop chain: channel publish, brand-intake, unpublished theme, then this
+score. HTML evidence needs products already Active on Online Store and a safe
+`preview_url`. An Admin-only score does not require the theme.
+
 The scorer checks those Admin fields and applies the published weights:
 
 | Dimension | Weight |
