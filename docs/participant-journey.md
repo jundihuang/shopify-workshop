@@ -14,7 +14,7 @@
 |---|---|---|
 | 小组号卡片（A/B/C…）、Excel 模板、「不要连接自己的正式店」 | 记住小组号；打开讲师发的聊天 / 页面 | 知道自己是哪一组 |
 
-不需要已有 Shopify / Partner 账号。讲师**不**预发每组一家 Dev Store，也**不**发 Opening soon 店面密码。店在 Step 1 现场创建。
+不需要已有 Shopify / Partner 账号。**Preview Store 是唯一店路径**：讲师**不**预发每组一家 Dev Store，**不**设 Dev Store fallback，也**不**发 Opening soon 店面密码。店在 Step 1 现场创建。
 
 ---
 
@@ -43,7 +43,7 @@ shopify store create preview --name '…' --json
 | 「正在创建 Preview Store」与店名确认 | 看店名是否是本组的 | 「确认连接」 | 显示 `*.myshopify.com`、`store_type=preview`、scopes_ok=true |
 | `shopify store open` / access 流程（可能弹出浏览器或访问链接） | 跟着打开，确认能看见店面而不是停在要你输入密码 | — | 会话可用；状态里只记会话句柄，不记 accessUrl 原文 |
 
-创建失败：联系讲师。讲师可改挂 **fallback Dev Store**（见 Runbook）。不要改连自己的正式店，也不要找人要店面密码。
+创建失败：先按现场排障处理——重试 `shopify store create preview`、换店名、检查 CLI/网络。仍失败时该组暂停并请讲师协助；不会改挂 Dev Store，也不要在课前或现场预开 Dev Store。不要改连自己的正式店，也不要找人要店面密码。
 
 ---
 
@@ -78,7 +78,7 @@ shopify store create preview --name '…' --json
 
 | 你看到什么 | 你做什么 | 确认控件 | 成功画面 |
 |---|---|---|---|
-| 「基于骨架填充主题」说明（不是从零生成） | 确认用本组 Brief | 「创建 Unpublished Theme」 | 进度条；或超时提示切 Fallback |
+| 「基于骨架填充主题」说明（不是从零生成） | 确认用本组 Brief | 「创建 Unpublished Theme」 | 进度条；或超时提示切 Demo Theme Fallback |
 | `previewUrl`（带 `?preview_theme_id=`） | 用 **`shopify store open` 或 Step 1 的 accessUrl 会话**打开；未登录裸开会停在 Opening soon | — | Home / Collection / Product 可预览 |
 | 移动端检查提示 | 快速扫一眼手机宽度 | 「预览 OK，继续」 | theme_id + unpublished 记入状态 |
 

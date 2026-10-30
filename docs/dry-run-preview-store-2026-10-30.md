@@ -1,6 +1,6 @@
 # Dry Run：`shopify store create preview`（2026-10-30）
 
-测试店：`ygquzh-qd.myshopify.com`（type=preview，CLI 5.0.0）
+测试店：`dry-run-preview.myshopify.com`（虚构化记录；type=preview，CLI 5.0.0）
 
 本文只记录行为与架构结论。**不收录** `accessUrl`、`saveUrl`、Admin token 或店面密码。
 
@@ -27,7 +27,7 @@
 
 ## 建议（Workshop 架构）
 
-1. **主路径 = 每人/组 `store create preview`**，不是课前预开 Dev Store。
+1. **唯一店路径 = 每人/组 `store create preview`**；不设 Dev Store fallback，也不课前按人数预开 Dev Store。
 2. **GEO 主证据 = Admin API**（Preview 店公开爬不可靠：密码页 + products.json 401）。
 3. 店面预览用 CLI `shopify store open` / `accessUrl`，不要教学员裸爬 `*.myshopify.com`。
 4. Theme 用 unpublished + `preview_theme_id`；默认 MAIN 可留 Horizon 作对照。
@@ -49,4 +49,4 @@
 - GEO 需要店面 HTML/schema 时，走 `shopify store info` / `shopify store open` 的 **`accessUrl` 会话**。学员可以看到这条 access / open 流程。
 - Admin 可读到 `onlineStore.passwordProtection.enabled = true`，但 **密码明文不可读**。
 - `onlineStorePasswordProtectionUpdate` **不在**这套 Admin API 上。禁止设计「用 Admin 读取或设置 Opening soon 店面密码，再交给 GEO」。
-- Dev Store 只保留为讲师 fallback（Preview 创建失败时），不按学员人数课前预开。
+- Preview 创建失败时不改挂 Dev Store：现场重试 `shopify store create preview`、换店名、查 CLI/网络；必要时该组暂停并由讲师协助。也不按学员人数课前预开 Dev Store。

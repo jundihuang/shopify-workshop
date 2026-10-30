@@ -23,7 +23,7 @@ description: >-
 
 ## 前置条件
 
-- Preview Store 已连接（或讲师指定的 `dev_fallback`），CLI Admin token 可用
+- Preview Store 已连接（唯一店路径），CLI Admin token 可用
 - 编排器传入 `store_domain`、`storefront_session=access_url`（句柄，不是把 URL 贴进提示词），以及 `theme.preview_url`（`?preview_theme_id=`）
 - 商品已 **Active + Online Store**（编排器确认步之后）；否则只允许 Admin 层预检，并标明「非完整店面分」
 

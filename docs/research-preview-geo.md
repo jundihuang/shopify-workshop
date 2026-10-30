@@ -34,9 +34,9 @@ shopify theme push --unpublished
 
 **Workshop 应用（决策）：**
 
-- 每组现场创建 **一家 Preview Store**。这是主路径。
-- Workshop 不能给每位学员一家 Partner Dev Store，也不课前按人数预开 Dev Store。
-- **Dev Store 只作讲师 fallback**：Preview 创建失败时，讲师挂上自己掌握的备用店。
+- 每组现场创建 **一家 Preview Store**。这是 Workshop 唯一店路径。
+- 不设 Dev Store fallback，也不课前按人数预开 Dev Store。
+- Preview 创建失败时现场排障：重试 `shopify store create preview`、换店名、查 CLI/网络；必要时该组暂停并由讲师协助。
 - 拒绝学员把自己的正式店接进来。
 
 ---
@@ -98,7 +98,8 @@ Admin 字段 `onlineStore.passwordProtection.enabled` 为 **true**。这只说�
 
 | 否决项 | 原因 |
 |---|---|
-| 课前为每位学员 / 每组预开一家 Partner Dev Store | Workshop 发不出这些店；Preview 创建才是主路径 |
+| 课前为每位学员 / 每组预开一家 Partner Dev Store | Workshop 发不出这些店；Preview Store 才是唯一店路径 |
+| Preview 创建失败时改挂讲师 Dev Store | 不设 Dev Store fallback；现场排障，必要时该组暂停由讲师协助 |
 | 把 Opening soon 密码交给 GEO | 明文不可读；没有 `onlineStorePasswordProtectionUpdate` |
 | 未登录爬 `*.myshopify.com`、`/products.json`、sitemap 当主证据 | 密码页、401、404 |
 | Draft + Unpublished = 可爬公开店 | Draft 不进店面；未登录 HTML 不可用 |
@@ -166,7 +167,7 @@ shopify theme push --unpublished
 # previewUrl: https://{shop}.myshopify.com/?preview_theme_id={id}
 ```
 
-讲师 fallback（仅 Preview 创建失败）：使用讲师已有的 Dev Store 连接。GEO 店面仍走该店的 `store info` / `store open` 会话，同样不读取店面密码。
+Preview 创建失败：现场排障（重试 `shopify store create preview`、换店名、查 CLI/网络）；必要时该组暂停并由讲师协助。**不改挂 Dev Store，也不课前按人数预开 Dev Store。** GEO 店面始终走该组 Preview Store 的 `store info` / `store open` 会话，同样不读取店面密码。
 
 ---
 

@@ -7,7 +7,7 @@ mode: demo | hands_on
 
 connection:
   status: pending | connected | failed
-  store_type: preview | dev_fallback
+  store_type: preview               # 固定值；Preview Store 是唯一店路径
   scopes_ok: boolean
   auth: cli_cached_admin_token
   storefront_session: access_url | none

@@ -19,7 +19,7 @@ description: >-
 
 - 不要跳过人工确认点
 - 不要连接学员自己的正式店
-- 不要把「每组一家课前 Dev Store」当成主路径。Dev Store 仅在 Preview 创建失败时，由讲师指定为 `dev_fallback`
+- Preview Store 是唯一店路径。不要课前按人数预开 Dev Store，也不要在 Preview 创建失败时改挂 Dev Store；失败时现场排障（重试、换店名、查 CLI/网络），必要时该组暂停由讲师协助
 - 不要 Publish Theme
 - 不要调用完整版 `shopify-geo-eval`；只用 `shopify-geo-eval-workshop`
 - 不要默认让学员逐条审完全部 GEO 建议
@@ -50,7 +50,7 @@ create_preview_store
 
 ```text
 store_domain
-store_type                    # preview | dev_fallback
+store_type                    # 固定 preview；Preview Store 是唯一店路径
 storefront_session: access_url
   # 句柄：解析为当次 shopify store info / shopify store open 会话
   # 解析在运行时完成；状态文件里不落 URL
@@ -63,7 +63,7 @@ theme.preview_url             # unpublished，含 ?preview_theme_id=
 
 读写 `workshop-state.yaml`（见 `templates/workshop-state.schema.yaml`）。关键字段：
 
-- `connection.store_type`：`preview` | `dev_fallback`
+- `connection.store_type`：固定为 `preview`（唯一店路径）
 - `connection.auth`：`cli_cached_admin_token`
 - `connection.storefront_session`：`access_url` | `none`
 - `products.channel_status`：`draft` | `online_store_active`
@@ -73,10 +73,10 @@ theme.preview_url             # unpublished，含 ?preview_theme_id=
 
 ## 人工确认点（必须挡住）
 
-1. 确认创建并连接 Preview Store（失败时改为确认讲师 fallback）
+1. 确认创建并连接 Preview Store（失败时现场排障；必要时该组暂停）
 2. Excel 导入
 3. Brand Brief 锁定
-4. Theme 创建或 Fallback
+4. Theme 创建或 Demo Theme Fallback
 5. 商品 Active + Online Store（GEO 前）
 6. 批准全部 P0（+ 可选精审）
 7. 生成最终 Summary
