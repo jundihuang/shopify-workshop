@@ -138,17 +138,27 @@ function includesTerm(haystack, term) {
   return haystack.toLowerCase().includes(term.toLowerCase());
 }
 
-export function fieldCopies({ handle, constraints }) {
+export function fieldCopies({ handle, title: knownTitle, constraints }) {
   const { brand, category, scene, sellingPoints, avoid } = constraints;
-  const name = humanizeHandle(handle) || category;
+  const known = collapse(knownTitle || "");
+  const name = known || humanizeHandle(handle) || category;
   const sceneShort = shorten(scene, 48);
   const categoryShort = shorten(category, 32);
   const point = sellingPoints[0] || "";
   const point2 = sellingPoints[1] || "";
 
-  let core = `${brand} ${name}`;
-  if (!includesTerm(core, categoryShort)) core = `${core} ${categoryShort}`;
-  core = sanitizeCopy(`${core} for ${sceneShort}`, avoid);
+  let core;
+  if (known) {
+    // Real product title available: the meta title should read like a search
+    // snippet ("Title | Brand"), not a humanized URL handle.
+    core = sanitizeCopy(`${known} | ${brand}`, avoid);
+    if (core.length < 50 && !includesTerm(core, categoryShort)) core = `${core} ${categoryShort}`;
+    if (core.length < 50) core = sanitizeCopy(`${core} for ${sceneShort}`, avoid);
+  } else {
+    core = `${brand} ${name}`;
+    if (!includesTerm(core, categoryShort)) core = `${core} ${categoryShort}`;
+    core = sanitizeCopy(`${core} for ${sceneShort}`, avoid);
+  }
 
   const title = fitText(core, { min: 12, max: 70 });
 
@@ -165,7 +175,7 @@ export function fieldCopies({ handle, constraints }) {
     avoid,
   );
 
-  const metaTitle = fitText(core, { min: 50, max: 65 });
+  const metaTitle = fitText(core, { min: 20, max: 65 });
   const metaDescription = fitText(sanitizeCopy(`${lead} Plain care notes.`, avoid), { min: 140, max: 160 });
   const keyAttributes = sanitizeCopy(
     `category: ${categoryShort}; scene: ${sceneShort}; point: ${point || categoryShort}`,

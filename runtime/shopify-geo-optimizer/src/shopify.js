@@ -9,7 +9,7 @@ const DEFAULT_TIMEOUT_MS = Number(process.env.SHOPIFY_CLI_TIMEOUT_MS || 120_000)
 
 export const PRODUCT_LOOKUP_QUERY = `query WorkshopOptimizerProduct($query: String!) {
   products(first: 1, query: $query) {
-    nodes { id handle }
+    nodes { id handle seo { title description } }
   }
 }`;
 
@@ -146,7 +146,7 @@ function firstUserError(userErrors) {
     .join("; ");
 }
 
-export function buildProductInput(id, items, constraints) {
+export function buildProductInput(id, items, constraints, currentSeo = null) {
   const input = { id };
   const byField = new Map(items.map((item) => [item.field, item]));
   if (byField.has("title")) input.title = byField.get("title").after;
@@ -156,6 +156,14 @@ export function buildProductInput(id, items, constraints) {
   const seo = {};
   if (byField.has("meta_title")) seo.title = byField.get("meta_title").after;
   if (byField.has("meta_description")) seo.description = byField.get("meta_description").after;
+  // productUpdate replaces the whole seo object: carry the untouched field's
+  // current value forward so a meta_title write does not null seo.description.
+  if (seo.title !== undefined && seo.description === undefined && currentSeo?.description) {
+    seo.description = currentSeo.description;
+  }
+  if (seo.description !== undefined && seo.title === undefined && currentSeo?.title) {
+    seo.title = currentSeo.title;
+  }
   if (Object.keys(seo).length > 0) input.seo = seo;
   if (byField.has("key_attributes")) {
     const attrs = attributeWrite(constraints);
@@ -179,7 +187,7 @@ async function findProduct({ domain, handle, executeGraphql }) {
   if (!Array.isArray(nodes) || nodes.length === 0) return null;
   const match = nodes.find((node) => node?.handle === handle) || nodes[0];
   if (!match?.id || match.handle !== handle) return null;
-  return { id: match.id, handle: match.handle };
+  return { id: match.id, handle: match.handle, seo: match.seo ?? null };
 }
 
 export async function updateApprovedProducts({
@@ -201,7 +209,7 @@ export async function updateApprovedProducts({
         hints: ["Import the product before applying P0 copy.", "Use --dry-run to write fixtures without Shopify."],
       });
     }
-    const input = buildProductInput(found.id, items, constraints);
+    const input = buildProductInput(found.id, items, constraints, found.seo);
     const data = await executeGraphql({
       domain,
       query: PRODUCT_UPDATE_MUTATION,
