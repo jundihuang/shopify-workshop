@@ -76,7 +76,13 @@ export function assertUploadAllowed(args) {
 }
 
 export function buildThemePushArgs({ store, themePath }) {
-  const args = ["theme", "push", "--unpublished", "--json", "--store", store, "--path", themePath];
+  // Shopify CLI 5+ requires --theme (new theme name) alongside --unpublished
+  // in non-interactive terminals.
+  const args = [
+    "theme", "push", "--unpublished", "--json",
+    "--theme", "Workshop Skeleton",
+    "--store", store, "--path", themePath,
+  ];
   assertUploadAllowed(args);
   return args;
 }
