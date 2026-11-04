@@ -174,10 +174,22 @@ Preview 创建失败：现场排障（重试 `shopify store create preview`、�
 ## 8. 仍待实测
 
 - [ ] 浏览器里 `shopify store open` 之后，商品页 HTML 与 JSON-LD 是否稳定可读
-- [ ] `seo.title` 写入后读回为 null 的语义（是否回退 product title）
+- [x] `seo.title` 写入后读回为 null 的语义（是否回退 product title）——已实测（2026-11-04，见 §9）：`seo.title` 与商品 title **完全相同**时被 Admin API 静默置空；不同则正常保留。不回退、不报错
 - [ ] 约 30 分钟预览链过期后，再次 `store open` 能否恢复 accessUrl 会话
 - [ ] accessUrl **429** 在教室网络 / 多组并发下的重试间隔
-- [ ] 预置骨架上 `theme push --unpublished` 的耗时
+- [x] 预置骨架上 `theme push --unpublished` 的耗时——已实测（2026-11-04）：修复 schema 空 default 后 CLI 5 一次成功，约 10–15 秒（14 个骨架文件）
 - [ ] 多组并行时 Admin API rate limit
 
 回填到 dry-run 笔记，并同步方案里的证据策略。
+
+---
+
+## 9. 真实模式实测补充（2026-11-04，Preview Store `0q01dw-qg`）
+
+用 CLI 5.0.0 全链路真实跑通（connect → import → publish → theme → GEO before → P0 写回 → after → summary），暴露并修复以下与文档假设不符的行为：
+
+1. **`seo.title` 与商品 title 相同时被静默置空**。对照实验：`productCreate` 传 `seo.title == title` → 读回 `null`；传不同值 → 正常保留。`seo.description` 不受影响。Inflation Wear 样例 CSV 的 `seo_title` 恰好全部等于 title，导入后全部被置空——这是 before 分里 seo 检测异常的根因。样例 CSV 建议改用 `"{title} | {brand}"` 风格的 seo_title。
+2. **`productUpdate` 整体替换 seo 对象**：只传 `seo.title` 会把已有 `seo.description` 清空。优化器写回必须查回现值、两字段合并提交（已修复 `shopify-geo-optimizer`）。
+3. **Admin API 2025+ schema 漂移**：`ProductVariantsBulkInput` 的 `sku` 移入 `inventoryItem.sku`；`productCreate` 自动创建 "Default Title" 默认变体（需改用 `productVariantsBulkUpdate`）；`CreateMediaInput` 的内容类型字段为 `mediaContentType`（非 `contentType`）。
+4. **CLI 5 非交互环境**：`theme push --unpublished` 必须同时给 `--theme <新主题名>`；骨架 section schema 的空 `default: ""` 会被主题校验拒绝。
+5. **accessUrl 一次性 token 时效极短**：拿到后需立即使用；IAB 等中间层易过期，现场以 `shopify store open` 直开默认浏览器为最稳路径。
