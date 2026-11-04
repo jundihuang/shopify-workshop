@@ -50,6 +50,22 @@ export const PUBLISHABLE_PUBLISH_MUTATION = `mutation WorkshopPublishProductToOn
   }
 }`;
 
+// Shopify CLI 5 writes NDJSON progress to stderr and the error JSON to stdout.
+// Strip progress noise and prefer the structured error payload.
+function cliFailureDetail(error, fallback = "Shopify CLI command failed") {
+  const dropProgress = (text) =>
+    String(text || "")
+      .split(/\r?\n/)
+      .filter((line) => line.trim() && !/^\s*\{\s*"type"\s*:\s*"progress"/.test(line))
+      .join("\n")
+      .trim();
+  const stdoutDetail = dropProgress(error.stdout);
+  const stderrDetail = dropProgress(error.stderr);
+  if (stdoutDetail) return stdoutDetail;
+  if (stderrDetail) return stderrDetail;
+  return String(error.message || fallback);
+}
+
 function extractJson(text) {
   const input = String(text ?? "");
   try {
@@ -139,7 +155,7 @@ export async function executeShopifyGraphQL({
         ],
       });
     }
-    const detail = String(error.stderr || error.stdout || error.message || "Shopify CLI command failed").trim();
+    const detail = cliFailureDetail(error);
     throw new ShopifyExecuteError(`Shopify Admin GraphQL command failed: ${detail}`, {
       command: formatShopifyCommand(args),
       hints: [

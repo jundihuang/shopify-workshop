@@ -7,6 +7,22 @@ const execFileAsync = promisify(execFile);
 export const DEFAULT_THEME_PUSH_TIMEOUT_MS = 210_000;
 export const MAX_THEME_PUSH_TIMEOUT_MS = 240_000;
 
+// Shopify CLI 5 writes NDJSON progress to stderr and the error JSON to stdout.
+// Strip progress noise and prefer the structured error payload.
+function cliFailureDetail(error, fallback = "Shopify CLI command failed") {
+  const dropProgress = (text) =>
+    String(text || "")
+      .split(/\r?\n/)
+      .filter((line) => line.trim() && !/^\s*\{\s*"type"\s*:\s*"progress"/.test(line))
+      .join("\n")
+      .trim();
+  const stdoutDetail = dropProgress(error.stdout);
+  const stderrDetail = dropProgress(error.stderr);
+  if (stdoutDetail) return stdoutDetail;
+  if (stderrDetail) return stderrDetail;
+  return String(error.message || fallback);
+}
+
 export function resolveThemePushTimeoutMs(envValue = process.env.SHOPIFY_THEME_PUSH_TIMEOUT_MS) {
   if (envValue === undefined || envValue === null || String(envValue).trim() === "") {
     return DEFAULT_THEME_PUSH_TIMEOUT_MS;
@@ -188,7 +204,7 @@ async function runShopify(execFileImpl, bin, args, { timeoutMs, cwd, action }) {
       });
     }
     const exitCode = typeof error.code === "number" ? error.code : null;
-    const detail = redactSensitiveText(String(error.stderr || error.stdout || error.message || "Shopify CLI command failed"));
+    const detail = redactSensitiveText(cliFailureDetail(error));
     throw new ThemeUploadError(
       `${action} failed${exitCode === null ? "" : ` (exit ${exitCode})`}: ${detail}`,
       {

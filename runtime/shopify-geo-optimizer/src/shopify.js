@@ -29,6 +29,22 @@ export class ShopifyExecuteError extends Error {
   }
 }
 
+// Shopify CLI 5 writes NDJSON progress to stderr and the error JSON to stdout.
+// Strip progress noise and prefer the structured error payload.
+function cliFailureDetail(error, fallback = "Shopify CLI command failed") {
+  const dropProgress = (text) =>
+    String(text || "")
+      .split(/\r?\n/)
+      .filter((line) => line.trim() && !/^\s*\{\s*"type"\s*:\s*"progress"/.test(line))
+      .join("\n")
+      .trim();
+  const stdoutDetail = dropProgress(error.stdout);
+  const stderrDetail = dropProgress(error.stderr);
+  if (stdoutDetail) return stdoutDetail;
+  if (stderrDetail) return stderrDetail;
+  return String(error.message || fallback);
+}
+
 function assertAllowedQuery(query) {
   const trimmed = String(query || "").trim();
   if (trimmed === PRODUCT_LOOKUP_QUERY.trim() || trimmed === PRODUCT_UPDATE_MUTATION.trim()) return;
@@ -121,7 +137,7 @@ export async function executeShopifyGraphQL({
         hints: ["Install Shopify CLI 5+ and sign in before a live apply.", "Use apply --confirm --dry-run to write fixtures."],
       });
     }
-    const detail = String(error.stderr || error.stdout || error.message || "Shopify CLI command failed").trim();
+    const detail = cliFailureDetail(error);
     throw new ShopifyExecuteError(`Shopify Admin command failed: ${detail}`, {
       command: formatShopifyCommand(args),
       hints: ["Confirm the Preview Store connection and CLI cached auth.", "Use apply --confirm --approve-all-p0 --dry-run to skip Shopify."],
