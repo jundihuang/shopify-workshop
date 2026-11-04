@@ -10,7 +10,7 @@ const DEFAULT_TIMEOUT_MS = Number(process.env.SHOPIFY_CLI_TIMEOUT_MS || 180_000)
 
 const PRODUCT_CREATE_MUTATION = `mutation ProductDraftCreate($input: ProductInput!) {
   productCreate(input: $input) {
-    product { id handle title status }
+    product { id handle title status variants(first: 1) { nodes { id } } }
     userErrors { field message }
   }
 }`;
@@ -19,6 +19,20 @@ const VARIANT_CREATE_MUTATION = `mutation ProductVariantCreate($productId: ID!, 
   productVariantsBulkCreate(productId: $productId, variants: $variants) {
     productVariants { id sku price }
     userErrors { field message }
+  }
+}`;
+
+const VARIANT_UPDATE_MUTATION = `mutation ProductVariantUpdate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+  productVariantsBulkUpdate(productId: $productId, variants: $variants) {
+    productVariants { id sku price }
+    userErrors { field message }
+  }
+}`;
+
+const PRODUCT_MEDIA_MUTATION = `mutation ProductMediaAttach($productId: ID!, $media: [CreateMediaInput!]!) {
+  productCreateMedia(productId: $productId, media: $media) {
+    media { id status }
+    mediaUserErrors { field message }
   }
 }`;
 
@@ -164,14 +178,16 @@ function productInput(product) {
   return input;
 }
 
-function variantInput(product) {
+function variantInput(product, variantId = null) {
   const data = product.data;
+  // Admin API 2025+ moved SKU off ProductVariantsBulkInput into inventoryItem.sku.
   const variant = {
     price: data.price,
-    sku: data.sku,
+    inventoryItem: { sku: data.sku },
     inventoryPolicy: "DENY",
     taxable: true,
   };
+  if (variantId) variant.id = variantId;
   if (data.compare_at_price) variant.compareAtPrice = data.compare_at_price;
   return variant;
 }
@@ -233,12 +249,16 @@ async function createOneDraftProduct(product, { domain, executeGraphql, fixtures
     };
   }
 
+  // productCreate on Admin API 2025+ auto-creates a "Default Title" variant;
+  // update it in place instead of colliding via productVariantsBulkCreate.
+  const defaultVariantId = createdProduct.variants?.nodes?.[0]?.id ?? null;
   const variantResult = await executeGraphql({
     domain,
-    query: VARIANT_CREATE_MUTATION,
-    variables: { productId: createdProduct.id, variants: [variantInput(product)] },
+    query: defaultVariantId ? VARIANT_UPDATE_MUTATION : VARIANT_CREATE_MUTATION,
+    variables: { productId: createdProduct.id, variants: [variantInput(product, defaultVariantId)] },
   });
-  const variantPayload = variantResult.productVariantsBulkCreate ?? {};
+  const variantPayload =
+    variantResult.productVariantsBulkUpdate ?? variantResult.productVariantsBulkCreate ?? {};
   const variantError = firstUserError(variantPayload.userErrors);
   const variants = Array.isArray(variantPayload.productVariants) ? variantPayload.productVariants : [];
   if (variantError || variants.length === 0) {
@@ -249,12 +269,44 @@ async function createOneDraftProduct(product, { domain, executeGraphql, fixtures
       handle: product.data.handle,
       ok: false,
       shopify_status: "draft",
-      stage: "productVariantsBulkCreate",
+      stage: defaultVariantId ? "productVariantsBulkUpdate" : "productVariantsBulkCreate",
       product_id: createdProduct.id,
       partial: true,
       error: redactSensitiveText(variantError || "Shopify did not return a variant id"),
       channels_published: false,
     };
+  }
+
+  // Attach the validated image_url as product media; the workshop scorecard
+  // and the storefront both expect at least one image per imported product.
+  const imageUrl = String(product.data.image_url || "").trim();
+  if (imageUrl) {
+    const mediaResult = await executeGraphql({
+      domain,
+      query: PRODUCT_MEDIA_MUTATION,
+      variables: {
+        productId: createdProduct.id,
+        media: [{ originalSource: imageUrl, mediaContentType: "IMAGE", alt: product.data.title }],
+      },
+    });
+    const mediaPayload = mediaResult.productCreateMedia ?? {};
+    const mediaErrors = Array.isArray(mediaPayload.mediaUserErrors) ? mediaPayload.mediaUserErrors : [];
+    if (mediaErrors.length > 0) {
+      return {
+        row_number: product.row_number,
+        sku: product.data.sku,
+        title: product.data.title,
+        handle: product.data.handle,
+        ok: false,
+        shopify_status: "draft",
+        stage: "productCreateMedia",
+        product_id: createdProduct.id,
+        variant_id: variants[0].id,
+        partial: true,
+        error: redactSensitiveText(firstUserError(mediaErrors) || "Media attach failed"),
+        channels_published: false,
+      };
+    }
   }
 
   return {
