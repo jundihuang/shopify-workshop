@@ -5,6 +5,22 @@ import { REPO_ROOT, WORKSHOP_EVAL_CLI } from "./paths.js";
 
 const execFileAsync = promisify(execFile);
 
+// Shopify CLI 5 writes NDJSON progress to stderr and the error JSON to stdout.
+// Strip progress noise and prefer the structured error payload.
+function cliFailureDetail(error, fallback = "Shopify CLI command failed") {
+  const dropProgress = (text) =>
+    String(text || "")
+      .split(/\r?\n/)
+      .filter((line) => line.trim() && !/^\s*\{\s*"type"\s*:\s*"progress"/.test(line))
+      .join("\n")
+      .trim();
+  const stdoutDetail = dropProgress(error.stdout);
+  const stderrDetail = dropProgress(error.stderr);
+  if (stdoutDetail) return stdoutDetail;
+  if (stderrDetail) return stderrDetail;
+  return String(error.message || fallback);
+}
+
 export function workshopEvalInvocation({ groupDir, skipHtml = false, cliPath } = {}) {
   if (!groupDir) throw new Error("groupDir is required to rescore");
   const override = process.env.SHOPIFY_GEO_EVAL_CLI;
@@ -36,7 +52,7 @@ export async function rescoreWithWorkshopEval({
       maxBuffer: 10 * 1024 * 1024,
     });
   } catch (error) {
-    const detail = String(error.stderr || error.stdout || error.message || "workshop rescore failed").trim();
+    const detail = cliFailureDetail(error, "workshop rescore failed");
     throw new Error(`shopify-geo-eval-workshop rescore failed: ${detail.slice(0, 500)}`);
   }
   return invocation;

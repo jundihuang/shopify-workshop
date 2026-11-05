@@ -19,20 +19,17 @@
       {
         "type": "text",
         "id": "tagline",
-        "label": "Tagline",
-        "default": ""
+        "label": "Tagline"
       },
       {
         "type": "textarea",
         "id": "positioning",
-        "label": "Positioning",
-        "default": ""
+        "label": "Positioning"
       },
       {
         "type": "text",
         "id": "logo",
-        "label": "Logo reference",
-        "default": ""
+        "label": "Logo reference"
       },
       {
         "type": "color",

@@ -27,10 +27,26 @@ export function formatShopifyCommand(args) {
   return [SHOPIFY_BIN, ...args].map(shellQuote).join(" ");
 }
 
+// Shopify CLI 5 writes NDJSON progress to stderr and the error JSON to stdout.
+// Strip progress noise and prefer the structured error payload.
+function cliFailureDetail(error, fallback = "Shopify CLI command failed") {
+  const dropProgress = (text) =>
+    String(text || "")
+      .split(/\r?\n/)
+      .filter((line) => line.trim() && !/^\s*\{\s*"type"\s*:\s*"progress"/.test(line))
+      .join("\n")
+      .trim();
+  const stdoutDetail = dropProgress(error.stdout);
+  const stderrDetail = dropProgress(error.stderr);
+  if (stdoutDetail) return stdoutDetail;
+  if (stderrDetail) return stderrDetail;
+  return String(error.message || fallback);
+}
+
 function cliFailure(error, args, action) {
   const exitCode = typeof error.code === "number" ? error.code : null;
   const detail = redactSensitiveText(
-    String(error.stderr || error.stdout || error.message || "Shopify CLI command failed").trim(),
+    cliFailureDetail(error),
   );
   return new ShopifyCliError(`${action} failed${exitCode === null ? "" : ` (exit ${exitCode})`}: ${detail}`, {
     command: formatShopifyCommand(args),

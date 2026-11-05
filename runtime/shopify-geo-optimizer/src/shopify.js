@@ -9,7 +9,7 @@ const DEFAULT_TIMEOUT_MS = Number(process.env.SHOPIFY_CLI_TIMEOUT_MS || 120_000)
 
 export const PRODUCT_LOOKUP_QUERY = `query WorkshopOptimizerProduct($query: String!) {
   products(first: 1, query: $query) {
-    nodes { id handle }
+    nodes { id handle seo { title description } }
   }
 }`;
 
@@ -27,6 +27,22 @@ export class ShopifyExecuteError extends Error {
     this.command = command;
     this.hints = hints;
   }
+}
+
+// Shopify CLI 5 writes NDJSON progress to stderr and the error JSON to stdout.
+// Strip progress noise and prefer the structured error payload.
+function cliFailureDetail(error, fallback = "Shopify CLI command failed") {
+  const dropProgress = (text) =>
+    String(text || "")
+      .split(/\r?\n/)
+      .filter((line) => line.trim() && !/^\s*\{\s*"type"\s*:\s*"progress"/.test(line))
+      .join("\n")
+      .trim();
+  const stdoutDetail = dropProgress(error.stdout);
+  const stderrDetail = dropProgress(error.stderr);
+  if (stdoutDetail) return stdoutDetail;
+  if (stderrDetail) return stderrDetail;
+  return String(error.message || fallback);
 }
 
 function assertAllowedQuery(query) {
@@ -121,7 +137,7 @@ export async function executeShopifyGraphQL({
         hints: ["Install Shopify CLI 5+ and sign in before a live apply.", "Use apply --confirm --dry-run to write fixtures."],
       });
     }
-    const detail = String(error.stderr || error.stdout || error.message || "Shopify CLI command failed").trim();
+    const detail = cliFailureDetail(error);
     throw new ShopifyExecuteError(`Shopify Admin command failed: ${detail}`, {
       command: formatShopifyCommand(args),
       hints: ["Confirm the Preview Store connection and CLI cached auth.", "Use apply --confirm --approve-all-p0 --dry-run to skip Shopify."],
@@ -146,7 +162,7 @@ function firstUserError(userErrors) {
     .join("; ");
 }
 
-export function buildProductInput(id, items, constraints) {
+export function buildProductInput(id, items, constraints, currentSeo = null) {
   const input = { id };
   const byField = new Map(items.map((item) => [item.field, item]));
   if (byField.has("title")) input.title = byField.get("title").after;
@@ -156,6 +172,14 @@ export function buildProductInput(id, items, constraints) {
   const seo = {};
   if (byField.has("meta_title")) seo.title = byField.get("meta_title").after;
   if (byField.has("meta_description")) seo.description = byField.get("meta_description").after;
+  // productUpdate replaces the whole seo object: carry the untouched field's
+  // current value forward so a meta_title write does not null seo.description.
+  if (seo.title !== undefined && seo.description === undefined && currentSeo?.description) {
+    seo.description = currentSeo.description;
+  }
+  if (seo.description !== undefined && seo.title === undefined && currentSeo?.title) {
+    seo.title = currentSeo.title;
+  }
   if (Object.keys(seo).length > 0) input.seo = seo;
   if (byField.has("key_attributes")) {
     const attrs = attributeWrite(constraints);
@@ -179,7 +203,7 @@ async function findProduct({ domain, handle, executeGraphql }) {
   if (!Array.isArray(nodes) || nodes.length === 0) return null;
   const match = nodes.find((node) => node?.handle === handle) || nodes[0];
   if (!match?.id || match.handle !== handle) return null;
-  return { id: match.id, handle: match.handle };
+  return { id: match.id, handle: match.handle, seo: match.seo ?? null };
 }
 
 export async function updateApprovedProducts({
@@ -201,7 +225,7 @@ export async function updateApprovedProducts({
         hints: ["Import the product before applying P0 copy.", "Use --dry-run to write fixtures without Shopify."],
       });
     }
-    const input = buildProductInput(found.id, items, constraints);
+    const input = buildProductInput(found.id, items, constraints, found.seo);
     const data = await executeGraphql({
       domain,
       query: PRODUCT_UPDATE_MUTATION,
