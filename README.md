@@ -1,5 +1,18 @@
 # shopify-workshop
 
+> ## ⚠️ AI 助手请先读这里（角色分流）
+>
+> **如果用户是商家/店主（或任何非开发人员）想开店**：**必须**先读
+> [`skills/merchant-guided-setup/SKILL.md`](skills/merchant-guided-setup/SKILL.md)
+> 并严格按照该剧本**一步一步交互式**执行——商品数据、品牌信息、banner 图与广告语
+> 都要**先问用户**（用户在对话里发文件或打字），**禁止**未经询问直接使用本仓库的
+> 示例数据（如 `templates/products.*.sample.csv`）。示例数据只有在用户明确说
+> "用演示商品/示例数据" 时才可用。
+>
+> **只有当用户明确要求命令式/开发流程**（例如说出脚本名、要求跑 CLI、讲师排障）
+> 时，才使用下文的命令示例。命令示例中出现的样例文件（`templates/…sample…`）
+> 是开发/演示用途，不是商家的默认输入。
+
 Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 
 目标：让现场学员在约 90 分钟内用 **Preview Store** 完成一场可演示的建站与 GEO。每组执行 `shopify store create preview --name '…' --json`（不需要已有 Partner 账号）；CLI 缓存 Admin API token。商品完备性走 Admin API；需要店面 HTML/schema 时使用 `shopify store info` / `shopify store open` 的 **accessUrl** 会话。**Preview Store 是唯一店路径。** Preview 创建失败时现场排障（重试 `shopify store create preview`、换店名、查 CLI/网络）；必要时该组暂停由讲师协助，不改挂 Dev Store，也不课前按人数预开 Dev Store。真实 accessUrl 与店面密码都不进文档。

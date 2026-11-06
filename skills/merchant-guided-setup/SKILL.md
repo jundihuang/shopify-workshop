@@ -1,10 +1,13 @@
 ---
 name: merchant-guided-setup
 description: >-
-  商家引导开店（对话式）。AI 拉取本 skill 后，通过一步一步提问带着商家走完
-  ShopWright Workshop 全流程：商品数据由商家在对话中提供（贴文本或发 Excel）、
-  品牌信息口述、banner 图与广告语可选，全程不出现命令行概念，必要时展示店铺效果。
-  本 skill 是「面向商家」的入口；面向开发/讲师的细节见 shopwright-workshop-orchestrator。
+  商家引导开店（对话式）——当用户想开店/展示商品且没有使用 CLI、脚本、runtime 等
+  开发词汇时，必须使用本 skill，并在每一步先询问用户（商品数据来源、品牌信息、
+  banner 图与广告语），禁止未经询问直接使用仓库示例数据。AI 通过一步一步提问带着
+  商家走完 ShopWright Workshop 全流程：商品数据由商家在对话中提供（贴文本或发
+  Excel）、品牌信息口述、banner 图与广告语可选，全程不出现命令行概念，必要时展示
+  店铺效果。本 skill 是「面向商家」的入口；面向开发/讲师的细节见
+  shopwright-workshop-orchestrator。
 ---
 
 # merchant-guided-setup
