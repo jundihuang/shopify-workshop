@@ -27,7 +27,7 @@ import { updateBannerState } from "./state.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_FIXTURES_DIR = path.resolve(__dirname, "../fixtures");
 
-const BOOLEAN_FLAGS = new Set(["help", "version", "json", "dry-run", "confirm"]);
+const BOOLEAN_FLAGS = new Set(["help", "version", "json", "dry-run", "confirm", "allow-defaults"]);
 const VALUE_FLAGS = new Set(["group-id", "group-dir", "workdir", "image-url", "image-file", "heading", "button-label", "fixtures-dir"]);
 
 const PLAN_ARTIFACT = "banner.plan.json";
@@ -61,6 +61,8 @@ Options:
   --button-label <txt> Hero button label (default: "Shop the collection").
                        Pass "" to leave the current label.
   --confirm            Required for apply and restore, including --dry-run.
+  --allow-defaults     Required when no --image-*/--heading/--button-label is passed. Defaults
+                       may only be used after the user explicitly accepted them.
   --dry-run            Never call Shopify. Uses the fixture homepage template.
   --fixtures-dir <dir> Fixture directory for --dry-run
   --json               Accepted for agent compatibility; output is JSON by default
@@ -190,6 +192,22 @@ async function bannerApply(opts) {
       `Refusing to apply without --confirm. Review ${PLAN_ARTIFACT} and obtain human confirmation outside the CLI.`,
     );
   }
+  // Interaction gate: the banner photo and hero copy must come from the user.
+  // Defaults (bundled photo + default heading/button) may only be used after
+  // the user explicitly accepted them, recorded via --allow-defaults.
+  const hasUserArtDirection =
+    Boolean(opts["image-url"]) || Boolean(opts["image-file"]) ||
+    "heading" in opts || "button-label" in opts;
+  const defaultsUsed = !hasUserArtDirection;
+  if (defaultsUsed && !opts["allow-defaults"]) {
+    throw new Error(
+      "Refusing to install the banner with silent defaults. Ask the user for the banner photo " +
+        "(their image file, a URL, or an explicit request to pick one) and the hero copy " +
+        "(their wording or an explicit choice from candidates). Re-run with --image-file/--image-url " +
+        "and/or --heading/--button-label; pass --allow-defaults only after the user explicitly " +
+        "accepted the defaults.",
+    );
+  }
   const connection = await readBannerConnection(groupDir);
   const dryRun = Boolean(opts["dry-run"]);
   const fixturesDir = path.resolve(opts["fixtures-dir"] || DEFAULT_FIXTURES_DIR);
@@ -229,6 +247,7 @@ async function bannerApply(opts) {
 
   return {
     ...result,
+    defaults_used: defaultsUsed,
     artifacts: {
       banner_install_json: relativeArtifactPath(resultPath),
       backup: relativeArtifactPath(backupPath),

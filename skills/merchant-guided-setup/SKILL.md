@@ -1,22 +1,21 @@
 ---
 name: merchant-guided-setup
 description: >-
-  商家引导开店（对话式）——当用户想开店/展示商品且没有使用 CLI、脚本、runtime 等
-  开发词汇时，必须使用本 skill，并在每一步先询问用户（商品数据来源、品牌信息、
-  banner 图与广告语），禁止未经询问直接使用仓库示例数据。AI 通过一步一步提问带着
-  商家走完 ShopWright Workshop 全流程：商品数据由商家在对话中提供（贴文本或发
-  Excel）、品牌信息口述、banner 图与广告语可选，全程不出现命令行概念，必要时展示
-  店铺效果。本 skill 是「面向商家」的入口；面向开发/讲师的细节见
-  shopwright-workshop-orchestrator。
+  开店对话剧本——本仓库的唯一入口。任何"开店 / 走流程 / 建店"请求都必须使用本
+  skill，并在每一步先询问用户（商品数据来源、品牌信息、banner 图与广告语），
+  禁止未经询问直接使用仓库示例数据（运行时硬门会拒绝并提示先询问）。AI 通过
+  一步一步提问带着用户走完全流程：商品数据由用户在对话中提供（贴文本或发
+  Excel）、品牌信息口述、banner 图与广告语可选，全程不向用户暴露命令行概念，
+  必要时展示店铺效果。
 ---
 
 # merchant-guided-setup
 
 ## 何时使用
 
-- 一位商家（店主）第一次找 AI 开店，没有技术背景
-- 商家通过对话提供素材（商品清单、品牌介绍、图片），而不是准备好的项目文件
-- 目标：商家只负责回答问题和确认，AI 负责一切执行
+- 任何"开店 / 走流程 / 建店 / 展示商品"请求（本 skill 是仓库唯一入口，无论用户背景）
+- 素材（商品清单、品牌介绍、图片）全部通过对话收集，而不是预先放进项目的文件
+- 目标：用户只负责回答问题和确认，AI 负责一切执行
 
 ## 给 AI 的总原则（必须遵守）
 
@@ -60,7 +59,7 @@ description: >-
 |---|---|
 | Excel/CSV 文件 | 保存为 `.workshop/<组>/merchant-products.<原扩展名>`，直接进入校验 |
 | 打字的商品清单 | AI 生成 CSV 写入 `.workshop/<组>/merchant-products.csv`。**必填列**：`title,description,product_type,vendor,price,sku,image_url`；有则加 `tags,seo_title,seo_description,handle`。缺图的行用 Shopify 占位图 URL `https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-image-base.png`；`product_type/vendor` 缺省从品类推断；description 缺省用商家口述拼一句 |
-| 选演示商品 | 使用 `templates/products.inflationwear-tshirt.sample.csv` |
+| 选演示商品 | 使用 `templates/products.inflationwear-tshirt.sample.csv`，**必须加 `--allow-sample`**（用户已明确选择演示数据；不带该参数 runtime 会直接拒绝——这是防"未询问就导入"的硬门） |
 
 **AI 执行**：
 
@@ -101,6 +100,7 @@ description: >-
 
 **转化规则**：AI 把回答整理成 answers JSON 写入 `.workshop/<组>/merchant-answers.json`，字段对照：
 `brand_name`（Step 1 的店名）、`tagline`、`description`、`audience`、`needs[]`、`positioning`、`tone`、`avoid[]`（AI 顺手把商家口述里的绝对化/医疗用语放进 avoid）、`primary_color`（色名→hex，如"深蓝"→#1F3A5F）、`secondary_color`、`selling_points[]`、`trust_signals[]`、`locale/currency` 缺省 `en-US/USD`。
+**硬门提醒**：只有当商家明确说"用示例答案/你帮我随便填"时，才允许用 `templates/brand-intake.answers.sample.json` 且**必须加 `--allow-sample`**，否则 runtime 直接拒绝。
 
 ```bash
 ./scripts/brand-intake.sh plan --group-id <组> --answers .workshop/<组>/merchant-answers.json
@@ -173,6 +173,7 @@ description: >-
 | 图片文件 | 保存为 `.workshop/<组>/merchant-banner.<ext>` → `--image-file`（本地直传，无需公网链接） |
 | 帮我找 | AI 找免版权图（Unsplash 等），取公网直链 → `--image-url`（宽幅 ≥1600px 优先） |
 | 广告语 | `--heading "<文案>" --button-label "<按钮词>"`（按钮词缺省 "Shop the collection"） |
+| 商家明确说"就用默认的" | 加 `--allow-defaults`（不带任何图/文案参数时 runtime 会拒绝执行——这是防"未询问就装默认招牌"的硬门） |
 
 **AI 执行**：
 

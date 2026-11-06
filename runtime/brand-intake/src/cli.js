@@ -17,7 +17,7 @@ import { BRIEF_FILE_NAME, updateBrandState } from "./state.js";
 
 const CONFIRM_COPY = "「锁定 Brand Brief，供骨架 Theme 填充与 GEO 文案约束使用（不写 Shopify）」";
 
-const BOOLEAN_FLAGS = new Set(["help", "version", "json", "dry-run", "confirm", "demo"]);
+const BOOLEAN_FLAGS = new Set(["help", "version", "json", "dry-run", "confirm", "demo", "allow-sample"]);
 const VALUE_FLAGS = new Set([
   "group-id",
   "group-dir",
@@ -39,6 +39,9 @@ Options:
   --group-dir <dir>      Explicit group directory override
   --workdir <dir>        Parent workshop workspace (default: .workshop)
   --answers <file>       Student brand answers JSON (flat or nested)
+  --allow-sample         Required when --answers points at the bundled sample answers
+                         (templates/brand-intake.answers.sample.json). Samples may only be
+                         used after the user explicitly chose demo answers in the conversation.
   --demo                 Load the Aurora Skincare Demo Brief instead of answers
   --demo-file <file>     Override the Demo Brief JSON (implies nothing by itself; use with --demo)
   --confirm              Required for apply, including --dry-run. Human confirmation happens
@@ -183,6 +186,7 @@ async function prepareBrief(opts) {
     throw new Error("Provide --answers <file> or --demo to load the Aurora Skincare brief.");
   }
   const answersPath = path.resolve(opts.answers);
+  assertAnswersSourceAllowed(opts, answersPath);
   const prepared = buildBriefFromAnswers(await readJsonFile(answersPath));
   assertValid(prepared.brief, schema);
   return { ...prepared, schema, demoPath: null, answersPath, answersIgnored: false };
@@ -193,6 +197,28 @@ function assertValid(brief, schema) {
   if (errors.length > 0) {
     throw new Error(`Brand brief failed schema validation: ${formatSchemaErrors(errors)}`);
   }
+}
+
+/**
+ * Interaction gate: the bundled sample answers must never be locked in as a
+ * brand brief silently. The agent collects the merchant's real answers in the
+ * conversation and writes them under .workshop/<group>/; the sample answers
+ * need an explicit user choice (--allow-sample).
+ */
+function assertAnswersSourceAllowed(opts, answersPath) {
+  const normalized = String(answersPath).replace(/\\/g, "/").toLowerCase();
+  const filename = normalized.split("/").pop() || "";
+  const isSample = /(^|\/)templates\//.test(normalized) && /sample/.test(filename);
+  if (!isSample) return false;
+  if (!opts["allow-sample"]) {
+    throw new Error(
+      `Refusing to lock the brand brief from the bundled sample answers "${filename}" without --allow-sample. ` +
+        "Ask the user for their brand details first (name, intro, audience, selling points, tone, color) " +
+        "and write the answers under .workshop/<group>/. Re-run with --allow-sample only after the user " +
+        "explicitly chose the sample/demo answers.",
+    );
+  }
+  return true;
 }
 
 function planDocument(opts, groupDir, prepared) {
