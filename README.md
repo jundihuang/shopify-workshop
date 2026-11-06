@@ -33,19 +33,27 @@ Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 商品导入主 Demo 使用合作伙伴 [INFLATION / inflationwear.com](https://inflationwear.com/collections/tshirt) 的公开商品样例（8 SKU）：
 
 ```bash
+# 样例数据必须显式声明（用户明确选择演示数据后）：
 ./scripts/product-excel-import.sh validate \
   --group-id A \
-  --file templates/products.inflationwear-tshirt.sample.csv
+  --file templates/products.inflationwear-tshirt.sample.csv \
+  --allow-sample
 
 # 人工审阅 .workshop/A/products.import.preview.json 后：
-./scripts/product-excel-import.sh import --group-id A --confirm
+./scripts/product-excel-import.sh import --group-id A --confirm --allow-sample
 
 # 无网络写入的端到端演练：
 ./scripts/product-excel-import.sh run \
   --group-id A \
   --file templates/products.inflationwear-tshirt.sample.xlsx \
+  --allow-sample \
   --dry-run
+
+# 商家自己的商品文件（对话收集，存 .workshop/<组>/）不需要 --allow-sample：
+./scripts/product-excel-import.sh validate --group-id A --file .workshop/A/merchant-products.csv
 ```
+
+> **交互硬门**：`--file` 指向仓库内置样例（`templates/…sample…`、`products.inflationwear…`）而不带 `--allow-sample` 时，runtime 直接拒绝并提示先询问用户商品数据来源。这是防止"未询问就静默导入演示数据"的机制级保障。
 
 导入固定写 Draft，不发布 Online Store 或其他销售渠道。
 
@@ -62,15 +70,21 @@ GEO 演示前的渠道发布是独立的人工确认步骤（不并入 import）
 Brand Brief 是渠道发布之后落地的下一个 MVP。现场顺序仍在骨架 Theme 之前。它只写本地 JSON：
 
 ```bash
+# 样例答案必须显式声明（用户明确选择演示答案后）：
 ./scripts/brand-intake.sh plan \
   --group-id A \
-  --answers templates/brand-intake.answers.sample.json
+  --answers templates/brand-intake.answers.sample.json \
+  --allow-sample
 
 # 人工审阅 missing[] 与 tone.avoid 后：
 ./scripts/brand-intake.sh apply \
   --group-id A \
   --confirm \
-  --answers templates/brand-intake.answers.sample.json
+  --answers templates/brand-intake.answers.sample.json \
+  --allow-sample
+
+# 商家口述答案（AI 整理写入 .workshop/A/merchant-answers.json）不需要 --allow-sample：
+./scripts/brand-intake.sh apply --group-id A --confirm --answers .workshop/A/merchant-answers.json
 
 # 超时或没有答案文件：加载 Aurora Skincare，不访问网络
 ./scripts/brand-intake.sh apply --group-id A --confirm --demo --dry-run
@@ -142,21 +156,19 @@ Horizon banner 是链尾的展示步骤。预览会话链接只渲染 live 主�
 ```bash
 ./scripts/install-horizon-banner.sh plan --group-id A
 
-# 人工确认 participant_confirm_copy 后：
-./scripts/install-horizon-banner.sh apply --group-id A --confirm
+# 商家给了图和/或广告语（二选一或组合）：
+./scripts/install-horizon-banner.sh apply --group-id A --confirm \
+  --image-file .workshop/A/merchant-banner.jpg \
+  --heading "Oversized. Washed. Worn in." --button-label "See the tees"
+
+# 商家明确接受默认图+默认文案时才可用（硬门：不带任何图/文案参数必须显式声明）：
+./scripts/install-horizon-banner.sh apply --group-id A --confirm --allow-defaults
 
 # 不调 Shopify 的演练（fixture 模板走完整链路）：
-./scripts/install-horizon-banner.sh apply --group-id A --confirm --dry-run
+./scripts/install-horizon-banner.sh apply --group-id A --confirm --heading "Rehearsal" --dry-run
 
 # 一键还原改前的首页模板：
 ./scripts/install-horizon-banner.sh restore --group-id A --confirm
-
-# 换一张图（任意公网 https 图 URL）：
-./scripts/install-horizon-banner.sh apply --group-id A --confirm --image-url "https://…"
-
-# 换广告语（默认 "Heavyweight tees, broken in from day one." / "Shop the collection"）：
-./scripts/install-horizon-banner.sh apply --group-id A --confirm \
-  --heading "Oversized. Washed. Worn in." --button-label "See the tees"
 ```
 
 它只接受 Preview Store + `write_themes`，只改 MAIN 主题的 `templates/index.json` 一个文件，改前把原件写进 `horizon-index.backup.json`，成功后写 `banner.install.json` 并更新 `workshop-state.yaml` 的 `banner` 段。这是**经主办方确认的展示例外**：除本步骤外，仓库其余部分仍然永不写 live 主题。默认图是内置的 Workshop 拎包人横版（2400×1200，Unsplash 授权）。

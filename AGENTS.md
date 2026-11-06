@@ -14,10 +14,15 @@
 ## 2. 硬规则（两类用户都适用）
 
 1. **商品数据必须先问来源**。禁止未经询问就把 `templates/products.*.sample*.csv/xlsx`
-   或仓库任何示例文件当作用户数据导入。示例数据只在用户明确说
-   "用演示商品 / 示例数据 / Inflation Wear" 时可用。
+   或仓库任何示例文件当作用户数据导入。**运行时强制**：样例文件（`templates/…sample…`、
+   `products.inflationwear…`）在没有 `--allow-sample` 时会被 product-excel-import 直接拒绝；
+   `--allow-sample` 只能在用户明确说"用演示商品 / 示例数据"之后使用。
 2. **品牌信息、banner 图、广告语同理**：先问（口述/发文件/选候选），再执行；
    商家发来的文件一律存到 `.workshop/<组>/` 下使用，不要求商家把文件放进仓库。
+   **运行时强制**：brand-intake 对样例答案文件同样要求 `--allow-sample`；
+   install-horizon-banner 在未传任何 `--image-*` / `--heading` / `--button-label`
+   时要求 `--allow-defaults`（= 用户明确接受了默认图和默认文案），否则拒绝执行。
+   产物会记录 `sample_source_used` / `defaults_used`，事后可审计。
 3. 每个写操作前用大白话向用户确认（剧本里有每步的确认话术）。
 4. Preview Store 是唯一店路径；主题只写 Unpublished；唯一例外是
    `install-horizon-banner`（仅改 Horizon 首页一个文件、先备份、可还原）。

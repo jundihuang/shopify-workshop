@@ -24,6 +24,7 @@ const BOOLEAN_FLAGS = new Set([
   "demo-images",
   "check-images",
   "confirm",
+  "allow-sample",
 ]);
 
 const VALUE_FLAGS = new Set([
@@ -53,6 +54,9 @@ Options:
   --demo-images          Replace missing/unreachable image_url values with a Shopify placeholder
   --check-images         Probe image_url reachability (off by default for offline workshops)
   --confirm              Required for a real Shopify import; confirmation happens outside this CLI
+  --allow-sample         Required when --file points at a bundled workshop sample (templates/…sample…
+                         or products.inflationwear…). Samples may only be used after the user
+                         explicitly chose demo/sample data in the conversation.
   --dry-run              Never call Shopify; use bundled fixtures for fake import results
   --fixtures-dir <dir>   Fixture directory for dry-run import results
   --json                 Accepted for agent compatibility; JSON output is the default
@@ -128,6 +132,32 @@ function sourceFileFromOpts(opts) {
   return requireString(opts.file || opts.input || opts.source, "--file");
 }
 
+/**
+ * Interaction gate: bundled workshop sample data must never be imported
+ * silently. The agent has to ask the user where their product data comes
+ * from; samples are only allowed after an explicit "use demo data" answer,
+ * which the caller records by passing --allow-sample.
+ */
+function isBundledSamplePath(filePath) {
+  const normalized = String(filePath).replace(/\\/g, "/").toLowerCase();
+  const inTemplates = /(^|\/)templates\//.test(normalized);
+  const sampleName = /sample|inflationwear/.test(normalized.split("/").pop() || "");
+  return (inTemplates && sampleName) || sampleName;
+}
+
+function assertSampleSourceAllowed(opts, filePath) {
+  if (!isBundledSamplePath(filePath)) return false;
+  if (!opts["allow-sample"]) {
+    throw new Error(
+      `Refusing to use the bundled sample "${path.basename(String(filePath))}" without --allow-sample. ` +
+        "Ask the user where their product data comes from first (their own Excel/CSV, pasted items, " +
+        "or an explicit request for demo products). Re-run with --allow-sample only after the user " +
+        "explicitly chose demo/sample data.",
+    );
+  }
+  return true;
+}
+
 function previewPath(groupDir) {
   return path.join(groupDir, "products.import.preview.json");
 }
@@ -158,12 +188,14 @@ async function validateToArtifact(opts) {
   const groupDir = resolveGroupDir(opts);
   const file = path.resolve(sourceFileFromOpts(opts));
   if (!(await pathExists(file))) throw new Error(`Product file not found: ${file}`);
+  const sampleSourceUsed = assertSampleSourceAllowed(opts, file);
   const preview = await buildPreview({
     filePath: relativeArtifactPath(file),
     demoImages: Boolean(opts["demo-images"]),
     checkImages: Boolean(opts["check-images"]),
     dryRun: Boolean(opts["dry-run"]),
   });
+  preview.sample_source_used = sampleSourceUsed;
   await ensureWorkshopGitignore(groupDir);
   const artifactPath = previewPath(groupDir);
   await writeSafeJson(artifactPath, preview);
@@ -188,6 +220,12 @@ async function importFromArtifact(opts, { previewOverride = null, validation = n
   if (!Array.isArray(preview.products)) throw new Error("Preview artifact does not contain a products array");
   if (!opts["dry-run"] && !opts.confirm) {
     throw new Error("Refusing to import without --confirm. Review products.import.preview.json and obtain human confirmation outside the CLI.");
+  }
+  if (preview.sample_source_used === true && !opts["allow-sample"]) {
+    throw new Error(
+      "This preview was built from a bundled sample sheet. Ask the user where their product data " +
+        "comes from first; re-run with --allow-sample only after the user explicitly chose demo/sample data.",
+    );
   }
 
   const result = await importPreview({

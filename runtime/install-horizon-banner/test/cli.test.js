@@ -98,12 +98,43 @@ test("apply refuses to run without --confirm", async () => {
   }
 });
 
+test("apply refuses silent defaults without --allow-defaults", async () => {
+  const temp = await mkdtemp(path.join(tmpdir(), "banner-nodefaults-"));
+  try {
+    const { workdir } = await setupGroup(temp);
+    const run = await runCli(["apply", "--group-id", "A", "--workdir", workdir, "--confirm", "--dry-run"], temp);
+    assert.notEqual(run.code, 0);
+    const err = JSON.parse(run.stderr);
+    assert.match(err.error, /--allow-defaults/);
+    assert.match(err.error, /Ask the user for the banner photo/);
+  } finally {
+    await rm(temp, { recursive: true, force: true });
+  }
+});
+
+test("apply passes the defaults gate with explicit user art direction", async () => {
+  const temp = await mkdtemp(path.join(tmpdir(), "banner-userart-"));
+  try {
+    const { workdir, groupDir } = await setupGroup(temp);
+    const run = await runCli(
+      ["apply", "--group-id", "A", "--workdir", workdir, "--confirm", "--dry-run", "--heading", "Summer, sorted."],
+      temp,
+    );
+    assert.equal(run.code, 0, run.stderr);
+    const output = JSON.parse(run.stdout);
+    assert.equal(output.defaults_used, false);
+    assert.equal(output.copy_after.heading, "<p>Summer, sorted.</p>");
+  } finally {
+    await rm(temp, { recursive: true, force: true });
+  }
+});
+
 test("apply --confirm --dry-run writes install result, backup, and banner state without Shopify", async () => {
   const temp = await mkdtemp(path.join(tmpdir(), "banner-apply-"));
   try {
     const { workdir, groupDir } = await setupGroup(temp);
     const run = await runCli(
-      ["apply", "--group-id", "A", "--workdir", workdir, "--confirm", "--dry-run"],
+      ["apply", "--group-id", "A", "--workdir", workdir, "--confirm", "--dry-run", "--allow-defaults"],
       temp,
     );
     assert.equal(run.code, 0, run.stderr);
@@ -140,7 +171,7 @@ test("restore --confirm --dry-run works from the written backup", async () => {
   const temp = await mkdtemp(path.join(tmpdir(), "banner-restore-"));
   try {
     const { workdir } = await setupGroup(temp);
-    await runCli(["apply", "--group-id", "A", "--workdir", workdir, "--confirm", "--dry-run"], temp);
+    await runCli(["apply", "--group-id", "A", "--workdir", workdir, "--confirm", "--dry-run", "--allow-defaults"], temp);
     const run = await runCli(["restore", "--group-id", "A", "--workdir", workdir, "--confirm", "--dry-run"], temp);
     assert.equal(run.code, 0, run.stderr);
     const output = JSON.parse(run.stdout);

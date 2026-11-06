@@ -60,7 +60,7 @@ description: >-
 |---|---|
 | Excel/CSV 文件 | 保存为 `.workshop/<组>/merchant-products.<原扩展名>`，直接进入校验 |
 | 打字的商品清单 | AI 生成 CSV 写入 `.workshop/<组>/merchant-products.csv`。**必填列**：`title,description,product_type,vendor,price,sku,image_url`；有则加 `tags,seo_title,seo_description,handle`。缺图的行用 Shopify 占位图 URL `https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-image-base.png`；`product_type/vendor` 缺省从品类推断；description 缺省用商家口述拼一句 |
-| 选演示商品 | 使用 `templates/products.inflationwear-tshirt.sample.csv` |
+| 选演示商品 | 使用 `templates/products.inflationwear-tshirt.sample.csv`，**必须加 `--allow-sample`**（用户已明确选择演示数据；不带该参数 runtime 会直接拒绝——这是防"未询问就导入"的硬门） |
 
 **AI 执行**：
 
@@ -101,6 +101,7 @@ description: >-
 
 **转化规则**：AI 把回答整理成 answers JSON 写入 `.workshop/<组>/merchant-answers.json`，字段对照：
 `brand_name`（Step 1 的店名）、`tagline`、`description`、`audience`、`needs[]`、`positioning`、`tone`、`avoid[]`（AI 顺手把商家口述里的绝对化/医疗用语放进 avoid）、`primary_color`（色名→hex，如"深蓝"→#1F3A5F）、`secondary_color`、`selling_points[]`、`trust_signals[]`、`locale/currency` 缺省 `en-US/USD`。
+**硬门提醒**：只有当商家明确说"用示例答案/你帮我随便填"时，才允许用 `templates/brand-intake.answers.sample.json` 且**必须加 `--allow-sample`**，否则 runtime 直接拒绝。
 
 ```bash
 ./scripts/brand-intake.sh plan --group-id <组> --answers .workshop/<组>/merchant-answers.json
@@ -173,6 +174,7 @@ description: >-
 | 图片文件 | 保存为 `.workshop/<组>/merchant-banner.<ext>` → `--image-file`（本地直传，无需公网链接） |
 | 帮我找 | AI 找免版权图（Unsplash 等），取公网直链 → `--image-url`（宽幅 ≥1600px 优先） |
 | 广告语 | `--heading "<文案>" --button-label "<按钮词>"`（按钮词缺省 "Shop the collection"） |
+| 商家明确说"就用默认的" | 加 `--allow-defaults`（不带任何图/文案参数时 runtime 会拒绝执行——这是防"未询问就装默认招牌"的硬门） |
 
 **AI 执行**：
 
