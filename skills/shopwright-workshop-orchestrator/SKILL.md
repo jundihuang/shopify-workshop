@@ -11,7 +11,8 @@ description: >-
 
 ## 何时使用
 
-- 启动或恢复一场 ShopWright Workshop 小组流程
+- 用户是**商家/店主**来找 AI 开店（没有开发背景、没提 CLI/脚本）→ **先切换到 `merchant-guided-setup` 的对话剧本**，不要直接跑本 skill 的命令流程；商品数据等素材必须先问来源
+- 启动或恢复一场 ShopWright Workshop 小组流程（讲师/开发场景）
 - 学员问「我们到哪一步了 / 下一步做什么」
 - 需要写 Workshop Summary
 
