@@ -1,8 +1,45 @@
+{%- if section.settings.show_banner -%}
+  <section class="collection-banner">
+    {%- if section.settings.image != blank -%}
+      {{
+        section.settings.image
+        | image_url: width: 1920
+        | image_tag:
+          class: "collection-banner__image",
+          loading: "eager",
+          widths: "800, 1200, 1600, 1920",
+          sizes: "100vw",
+          alt: collection.title
+      }}
+    {%- else -%}
+      <img
+        class="collection-banner__image"
+        src="{{ 'banner-collection.jpg' | asset_url }}"
+        alt="{{ collection.title | escape }}"
+        width="1920"
+        height="420"
+        loading="eager"
+      >
+    {%- endif -%}
+    <div class="collection-banner__overlay">
+      <div class="wrap">
+        <h1>{{ collection.title }}</h1>
+        {% if section.settings.intro != blank %}
+          <p>{{ section.settings.intro }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{%- else -%}
+  <section class="wrap">
+    <h1>{{ collection.title }}</h1>
+    {% if section.settings.intro != blank %}
+      <p>{{ section.settings.intro }}</p>
+    {% endif %}
+  </section>
+{%- endif -%}
+
 <section class="wrap">
-  <h1>{{ collection.title }}</h1>
-  {% if section.settings.intro != blank %}
-    <p>{{ section.settings.intro }}</p>
-  {% endif %}
   <div class="grid">
     {% for product in collection.products limit: 12 %}
       <article class="product-card">
@@ -17,6 +54,8 @@
 {
   "name": "Collection",
   "settings": [
+    { "type": "checkbox", "id": "show_banner", "label": "Show banner image", "default": true },
+    { "type": "image_picker", "id": "image", "label": "Banner image", "info": "Leave empty to use the bundled banner-collection.jpg." },
     { "type": "textarea", "id": "intro", "label": "Intro" }
   ]
 }

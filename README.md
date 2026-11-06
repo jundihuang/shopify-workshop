@@ -13,7 +13,9 @@ Google × Beansmile **ShopWright Workshop** 文档与 Skill 包。
 7. 批量确认 P0 优化并再打分  
 8. 写出 Workshop Summary（`workshop-summary.md` / `workshop-summary.html`）  
 
-本仓库以**方案与 Skill 契约**为主，已落地七个 Skill 的可运行步骤，以及总控链尾的 Summary 运行时：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）、[runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（Step 3：GEO 前人工确认，商品 Active + Online Store，Theme 保持 Unpublished）、[runtime/brand-intake](runtime/brand-intake/)（Step 4：Brand Brief，把学员答案整理成 schema 校验过的 `brand-brief.json`，超时可加载 Aurora Skincare Demo Brief；只写本地 JSON）、[runtime/shopify-theme-builder](runtime/shopify-theme-builder/)（Step 5：骨架填充 Brand Brief，`shopify theme push --unpublished`，返回带 `?preview_theme_id=` 的 `preview_url`；超时挂 Demo Theme，不发布主题）、[runtime/shopify-geo-eval-workshop](runtime/shopify-geo-eval-workshop/)（Step 6：Workshop 5 维 GEO before 分，只读 Admin 字段，最多 10 个商品；HTML 可选且不落 accessUrl）、[runtime/shopify-geo-optimizer](runtime/shopify-geo-optimizer/)（Step 7：按 workshop scorecard 和 Brand Brief 生成 P0 before/after，确认后写回并再评分；不携带完整版诊断）与 [runtime/workshop-summary](runtime/workshop-summary/)（Step 8：读取本组产物，写出 `workshop-summary.md` / `.html`；不调用 Shopify）。
+链尾还有一个不占编号的收尾动作：把 Workshop banner 装进 Horizon 首页（展示链接直达效果，先备份可还原），见下文 [runtime/install-horizon-banner](runtime/install-horizon-banner/)。
+
+本仓库以**方案与 Skill 契约**为主，已落地七个 Skill 的可运行步骤，以及总控链尾的两个收尾运行时：[runtime/shopify-store-connect](runtime/shopify-store-connect/)（Step 1：创建 Preview Store、校验 scopes、写安全连接产物）、[runtime/product-excel-import](runtime/product-excel-import/)（Step 2：CSV/XLSX 校验、ready/warning/blocked 预览、Draft 商品导入）、[runtime/publish-products-for-geo](runtime/publish-products-for-geo/)（Step 3：GEO 前人工确认，商品 Active + Online Store，Theme 保持 Unpublished）、[runtime/brand-intake](runtime/brand-intake/)（Step 4：Brand Brief，把学员答案整理成 schema 校验过的 `brand-brief.json`，超时可加载 Aurora Skincare Demo Brief；只写本地 JSON）、[runtime/shopify-theme-builder](runtime/shopify-theme-builder/)（Step 5：骨架填充 Brand Brief，`shopify theme push --unpublished`，返回带 `?preview_theme_id=` 的 `preview_url`；超时挂 Demo Theme，不发布主题）、[runtime/shopify-geo-eval-workshop](runtime/shopify-geo-eval-workshop/)（Step 6：Workshop 5 维 GEO before 分，只读 Admin 字段，最多 10 个商品；HTML 可选且不落 accessUrl）、[runtime/shopify-geo-optimizer](runtime/shopify-geo-optimizer/)（Step 7：按 workshop scorecard 和 Brand Brief 生成 P0 before/after，确认后写回并再评分；不携带完整版诊断）、[runtime/workshop-summary](runtime/workshop-summary/)（Step 8：读取本组产物，写出 `workshop-summary.md` / `.html`；不调用 Shopify）与 [runtime/install-horizon-banner](runtime/install-horizon-banner/)（Step 9：把 Workshop banner 图装进 Horizon 首页 hero，让展示链接直达带 banner 的店面；仅改 `templates/index.json`、先备份、一条命令可还原——这是经主办方确认的 Preview Store 展示例外）。
 
 商品导入主 Demo 使用合作伙伴 [INFLATION / inflationwear.com](https://inflationwear.com/collections/tshirt) 的公开商品样例（8 SKU）：
 
@@ -122,6 +124,30 @@ Workshop Summary 是优化器之后的最后一步。它不调用 Shopify，只�
 
 `plan` 写 `workshop-summary.plan.json`，不写最终页。`apply` 必须带 `--confirm`（含 `--dry-run`）。成功后写 `.workshop/<group_id>/workshop-summary.md`、`workshop-summary.html` 和 `workshop-summary.json`，并把 `workshop-state.yaml` 的 `summary.status` 更新为 `done` 或 `demo`。页面包含交付清单、workshop 5 维 before/after、已批 P0 摘要和未发布主题的 `preview_theme_id` 链接。分数只来自 `shopify-geo-eval-workshop`。`--dry-run` 不回写 `geo.after.json`。这一步不发布主题，不改商品，不写 accessUrl。
 
+Horizon banner 是链尾的展示步骤。预览会话链接只渲染 live 主题（Shopify 会剥掉会话链接上的 `preview_theme_id`），所以要让"点开链接就看到 banner"，需要把图装进 Horizon 首页：
+
+```bash
+./scripts/install-horizon-banner.sh plan --group-id A
+
+# 人工确认 participant_confirm_copy 后：
+./scripts/install-horizon-banner.sh apply --group-id A --confirm
+
+# 不调 Shopify 的演练（fixture 模板走完整链路）：
+./scripts/install-horizon-banner.sh apply --group-id A --confirm --dry-run
+
+# 一键还原改前的首页模板：
+./scripts/install-horizon-banner.sh restore --group-id A --confirm
+
+# 换一张图（任意公网 https 图 URL）：
+./scripts/install-horizon-banner.sh apply --group-id A --confirm --image-url "https://…"
+
+# 换广告语（默认 "Heavyweight tees, broken in from day one." / "Shop the collection"）：
+./scripts/install-horizon-banner.sh apply --group-id A --confirm \
+  --heading "Oversized. Washed. Worn in." --button-label "See the tees"
+```
+
+它只接受 Preview Store + `write_themes`，只改 MAIN 主题的 `templates/index.json` 一个文件，改前把原件写进 `horizon-index.backup.json`，成功后写 `banner.install.json` 并更新 `workshop-state.yaml` 的 `banner` 段。这是**经主办方确认的展示例外**：除本步骤外，仓库其余部分仍然永不写 live 主题。默认图是内置的 Workshop 拎包人横版（2400×1200，Unsplash 授权）。
+
 ## 文档导航
 
 | 文档 | 用途 |
@@ -133,9 +159,10 @@ Workshop Summary 是优化器之后的最后一步。它不调用 Shopify，只�
 | [docs/participant-journey.md](docs/participant-journey.md) | 学员操作旅程 |
 | [docs/facilitator-runbook.md](docs/facilitator-runbook.md) | 讲师 Runbook / 现场排障 |
 
-## Skills（7）
+## Skills（8）
 
 ```text
+merchant-guided-setup              商家对话式开店入口（AI 剧本：一步一步问商家拿商品/品牌/banner，无命令行暴露）
 shopwright-workshop-orchestrator   总控与状态
 shopify-store-connect              创建 Preview Store，使用 CLI 缓存的 Admin token
 product-excel-import               Excel → 商品（两阶段状态）
@@ -145,7 +172,9 @@ shopify-geo-eval-workshop          Workshop 简化 GEO（独立于完整版）
 shopify-geo-optimizer              P0 批量确认 + 写回
 ```
 
-渠道发布不是单独 skill。现场顺序是 `publish-products-for-geo` 运行时接在导入之后、Brand Brief 之前。Workshop Summary 也不是单独 skill，它是 orchestrator 的最后一步，运行时在 [runtime/workshop-summary](runtime/workshop-summary/)。完整版客户诊断 skill `shopify-geo-eval`（9+7 维爬虫流水线）**不在本仓库**，现场禁止直接调用。
+**商家（店主）由 AI 接待时，从 `merchant-guided-setup` 进入**：商品清单、品牌信息、广告图与广告语全部通过对话收集（商家拖文件或打字），AI 负责转成各步骤的输入并逐步执行——商家不需要知道任何命令。
+
+渠道发布不是单独 skill。现场顺序是 `publish-products-for-geo` 运行时接在导入之后、Brand Brief 之前。Workshop Summary 与 Horizon banner 也不是单独 skill：Summary 是 orchestrator 的倒数第二步，banner 安装是链尾展示步，运行时分别在 [runtime/workshop-summary](runtime/workshop-summary/) 与 [runtime/install-horizon-banner](runtime/install-horizon-banner/)。完整版客户诊断 skill `shopify-geo-eval`（9+7 维爬虫流水线）**不在本仓库**，现场禁止直接调用。
 
 ## 安全边界（硬规则）
 
@@ -155,6 +184,7 @@ shopify-geo-optimizer              P0 批量确认 + 写回
 - 不通过 Admin 读取或设置 Opening soon 店面密码（明文不可读；`onlineStorePasswordProtectionUpdate` 不存在）
 - 所有写入需人工确认
 - GEO 演示前商品可升为 Active + Online Store 渠道；**不 Publish Theme**
+- 唯一例外：`install-horizon-banner`（Step 9）会编辑 Horizon MAIN 主题的**单个文件** `templates/index.json`（经主办方确认的展示需求）；仅限 Preview Store、改前必备份、`restore` 一键还原；除此之外仓库任何步骤仍然**永不写 live 主题**
 
 ## 快速了解证据策略
 
