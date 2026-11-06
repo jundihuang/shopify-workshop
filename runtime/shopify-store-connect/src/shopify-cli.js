@@ -1,4 +1,6 @@
-import { execFile } from "node:child_process";
+import { execFile, execSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { redactSensitiveText } from "./redact.js";
 
@@ -60,9 +62,41 @@ function cliFailure(error, args, action) {
   });
 }
 
+// On Windows the npm-installed Shopify CLI only exists as a `.cmd`/sh shim that
+// execFile cannot launch. Resolve `shopify` to node + the global
+// @shopify/cli/bin/run.js so the same logical args keep working.
+let cachedWindowsCliJs;
+function resolveWindowsShopifyInvocation(bin, args) {
+  if (process.platform !== "win32" || bin !== "shopify") return { bin, args };
+  if (cachedWindowsCliJs === undefined) {
+    cachedWindowsCliJs = null;
+    if (process.env.SHOPIFY_CLI_JS && existsSync(process.env.SHOPIFY_CLI_JS)) {
+      cachedWindowsCliJs = process.env.SHOPIFY_CLI_JS;
+    } else {
+      try {
+        const whereOut = execSync("where shopify.cmd", {
+          encoding: "utf8",
+          timeout: 5000,
+          stdio: ["ignore", "pipe", "ignore"],
+        });
+        const cmdPath = whereOut.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)[0];
+        if (cmdPath) {
+          const cliJs = join(dirname(cmdPath), "node_modules", "@shopify", "cli", "bin", "run.js");
+          if (existsSync(cliJs)) cachedWindowsCliJs = cliJs;
+        }
+      } catch {
+        cachedWindowsCliJs = null;
+      }
+    }
+  }
+  if (!cachedWindowsCliJs) return { bin, args };
+  return { bin: process.execPath, args: [cachedWindowsCliJs, ...args] };
+}
+
 async function execShopify(args, action) {
+  const invocation = resolveWindowsShopifyInvocation(SHOPIFY_BIN, args);
   try {
-    const { stdout, stderr } = await execFileAsync(SHOPIFY_BIN, args, {
+    const { stdout, stderr } = await execFileAsync(invocation.bin, invocation.args, {
       encoding: "utf8",
       timeout: DEFAULT_TIMEOUT_MS,
       maxBuffer: 10 * 1024 * 1024,

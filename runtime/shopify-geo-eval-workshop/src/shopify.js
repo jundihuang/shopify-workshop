@@ -1,4 +1,6 @@
-import { execFile } from "node:child_process";
+import { execFile, execSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { ADMIN_PROBE_LIMIT } from "./paths.js";
 import { redactSensitiveText } from "./redact.js";
@@ -97,13 +99,45 @@ export function formatShopifyCommand(args) {
   return [DEFAULT_SHOPIFY_BIN, ...args].join(" ");
 }
 
+// On Windows the npm-installed Shopify CLI only exists as a `.cmd`/sh shim that
+// execFile cannot launch. Resolve `shopify` to node + the global
+// @shopify/cli/bin/run.js so the same logical args keep working.
+let cachedWindowsCliJs;
+function resolveWindowsShopifyInvocation(bin, args) {
+  if (process.platform !== "win32" || bin !== "shopify") return { bin, args };
+  if (cachedWindowsCliJs === undefined) {
+    cachedWindowsCliJs = null;
+    if (process.env.SHOPIFY_CLI_JS && existsSync(process.env.SHOPIFY_CLI_JS)) {
+      cachedWindowsCliJs = process.env.SHOPIFY_CLI_JS;
+    } else {
+      try {
+        const whereOut = execSync("where shopify.cmd", {
+          encoding: "utf8",
+          timeout: 5000,
+          stdio: ["ignore", "pipe", "ignore"],
+        });
+        const cmdPath = whereOut.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)[0];
+        if (cmdPath) {
+          const cliJs = join(dirname(cmdPath), "node_modules", "@shopify", "cli", "bin", "run.js");
+          if (existsSync(cliJs)) cachedWindowsCliJs = cliJs;
+        }
+      } catch {
+        cachedWindowsCliJs = null;
+      }
+    }
+  }
+  if (!cachedWindowsCliJs) return { bin, args };
+  return { bin: process.execPath, args: [cachedWindowsCliJs, ...args] };
+}
+
 async function runShopify(args, { shopifyBin = DEFAULT_SHOPIFY_BIN, timeoutMs = DEFAULT_TIMEOUT_MS, execFileImpl = execFileAsync } = {}) {
   if (args.includes("--allow-mutations") || args.includes("theme") || args.includes("publish")) {
     throw new ShopifyExecuteError("Refusing a Shopify command that is not a read-only workshop GEO read");
   }
   let stdout;
   try {
-    const result = await execFileImpl(shopifyBin, args, {
+    const invocation = resolveWindowsShopifyInvocation(shopifyBin, args);
+    const result = await execFileImpl(invocation.bin, invocation.args, {
       encoding: "utf8",
       timeout: timeoutMs,
       maxBuffer: 10 * 1024 * 1024,

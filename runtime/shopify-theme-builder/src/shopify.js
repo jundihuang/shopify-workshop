@@ -1,4 +1,6 @@
-import { execFile } from "node:child_process";
+import { execFile, execSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { redactSensitiveText } from "./redact.js";
 
@@ -187,9 +189,42 @@ export function parseThemePushPayload(stdout) {
   throw new ThemeUploadError("Theme upload JSON did not include a theme id", { reason: "push_failed" });
 }
 
+// On Windows the npm-installed Shopify CLI only exists as a `.cmd`/sh shim that
+// child_process.execFile cannot launch. Resolve `shopify` to
+// `node <npm-prefix>/node_modules/@shopify/cli/bin/run.js` so the same logical
+// args keep working. Guards keep validating the logical args either way.
+let cachedWindowsCliJs;
+function resolveWindowsShopifyInvocation(bin, args) {
+  if (process.platform !== "win32" || bin !== "shopify") return { bin, args };
+  if (cachedWindowsCliJs === undefined) {
+    cachedWindowsCliJs = null;
+    if (process.env.SHOPIFY_CLI_JS && existsSync(process.env.SHOPIFY_CLI_JS)) {
+      cachedWindowsCliJs = process.env.SHOPIFY_CLI_JS;
+    } else {
+      try {
+        const whereOut = execSync("where shopify.cmd", {
+          encoding: "utf8",
+          timeout: 5000,
+          stdio: ["ignore", "pipe", "ignore"],
+        });
+        const cmdPath = whereOut.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)[0];
+        if (cmdPath) {
+          const cliJs = join(dirname(cmdPath), "node_modules", "@shopify", "cli", "bin", "run.js");
+          if (existsSync(cliJs)) cachedWindowsCliJs = cliJs;
+        }
+      } catch {
+        cachedWindowsCliJs = null;
+      }
+    }
+  }
+  if (!cachedWindowsCliJs) return { bin, args };
+  return { bin: process.execPath, args: [cachedWindowsCliJs, ...args] };
+}
+
 async function runShopify(execFileImpl, bin, args, { timeoutMs, cwd, action }) {
+  const invocation = resolveWindowsShopifyInvocation(bin, args);
   try {
-    return await execFileImpl(bin, args, {
+    return await execFileImpl(invocation.bin, invocation.args, {
       encoding: "utf8",
       timeout: timeoutMs,
       maxBuffer: 10 * 1024 * 1024,
