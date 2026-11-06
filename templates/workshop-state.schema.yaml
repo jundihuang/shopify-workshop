@@ -50,3 +50,10 @@ summary:
   before_score: number | null     # copied from the workshop scorecard; not rescored here
   after_score: number | null
   improvement: number | null      # after_score - before_score
+
+banner:                           # Step 9 showcase install (install-horizon-banner)
+  status: pending | done | restored | skipped
+  theme_id: number | null         # MAIN (live) theme that was edited
+  image_ref: string | null        # shopify://shop_images/<file>
+  backup_file: string | null      # horizon-index.backup.json
+  live_theme_modified: true       # explicit marker: the approved showcase exception

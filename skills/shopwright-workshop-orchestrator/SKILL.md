@@ -2,8 +2,8 @@
 name: shopwright-workshop-orchestrator
 description: >-
   ShopWright Workshop 总控：创建 Preview Store → 导入 → 商品渠道发布 →
-  Brief → 骨架 Theme → Workshop GEO before → 批 P0 优化 → after → Summary。
-  把店铺域名和 accessUrl 会话句柄交给 GEO。不实现店面密码传递。
+  Brief → 骨架 Theme → Workshop GEO before → 批 P0 优化 → after → Summary →
+  Horizon banner。把店铺域名和 accessUrl 会话句柄交给 GEO。不实现店面密码传递。
   用于 Google×Beansmile 现场动手课，不是完整建站产品。
 ---
 
@@ -40,6 +40,7 @@ create_preview_store
   → apply_geo_optimizations
   → run_geo_eval_after
   → generate_workshop_summary
+  → install_horizon_banner
 ```
 
 委托子 skill：`shopify-store-connect`、`product-excel-import`、`brand-intake`、`shopify-theme-builder`、`shopify-geo-eval-workshop`、`shopify-geo-optimizer`。
@@ -154,6 +155,22 @@ HTML 只用编排器传来的 `storefront_session=access_url` 句柄，在运行
 
 分数只接受 `shopify-geo-eval-workshop` 的 5 维 scorecard。不读取完整版诊断，不发布主题，不改商品，不把 accessUrl、token 或店面密码写入 Summary。
 
+## Horizon Banner 运行时（链尾展示步）
+
+`install_horizon_banner` 的已落地命令是：
+
+```bash
+./scripts/install-horizon-banner.sh plan --group-id A
+# 人工确认 participant_confirm_copy 与风险后：
+./scripts/install-horizon-banner.sh apply --group-id A --confirm
+# 无 Shopify 调用的演练：
+./scripts/install-horizon-banner.sh apply --group-id A --confirm --dry-run
+# 一键还原改前的首页模板：
+./scripts/install-horizon-banner.sh restore --group-id A --confirm
+```
+
+实现见 [runtime/install-horizon-banner](../../runtime/install-horizon-banner/)。预览会话链接（`shopifypreview.com`）只渲染 live 主题，且 Shopify 会剥掉这类链接上的 `preview_theme_id` 参数；要让"点开展示链接就看到 banner"，唯一路径是把图装进 Horizon 首页 hero。这是**经主办方确认的 Preview Store 展示例外**，护栏：只接受 Preview Store + `write_themes`；只编辑 MAIN 主题的 `templates/index.json` 一个文件；改前原件写入 `horizon-index.backup.json`；`restore --confirm` 一键还原；成功写 `banner.install.json` 并更新 `workshop-state.yaml` 的 `banner` 段（含 `live_theme_modified: true` 显式标记）。默认图为内置 Workshop 拎包人横版（2400×1200，Unsplash 授权），`--image-url` 可换图。不发布主题，不改商品，不碰 accessUrl 或店面密码。
+
 ## 交给 GEO 的连接信息
 
 `run_geo_eval_before` / `run_geo_eval_after` 只接收：
@@ -182,6 +199,7 @@ theme.preview_url             # unpublished，含 ?preview_theme_id=
 - `geo.evidence_mode`，`geo.before_score`，`geo.after_score`
 - `geo.optimizer_status`：如 `approved_p0_batch`
 - `summary.status`：`done` | `demo`；`summary.before_score`，`summary.after_score`，`summary.improvement`
+- `banner.status`：`pending` | `done` | `restored` | `skipped`；`banner.theme_id`（MAIN 主题）、`banner.image_ref`（`shopify://shop_images/…`）、`banner.backup_file`、`banner.live_theme_modified: true`
 
 ## 人工确认点（必须挡住）
 
@@ -192,6 +210,8 @@ theme.preview_url             # unpublished，含 ?preview_theme_id=
 5. Theme 创建或 Demo Theme Fallback
 6. 批准全部 P0（+ 可选精审）
 7. 生成最终 Summary
+
+链尾附一个不占编号的收尾确认：编辑 Horizon 首页装 banner（唯一 live 主题写入点；先备份，可还原）。
 
 ## 学员话术要点
 

@@ -1,0 +1,13 @@
+{
+  "name": "install-horizon-banner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "ShopWright Workshop Step 9: install the workshop banner image onto the Horizon live theme homepage hero (Preview Store showcase exception).",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}
