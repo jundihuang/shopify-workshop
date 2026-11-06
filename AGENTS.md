@@ -1,38 +1,37 @@
 # AGENTS.md — AI 助手执行规则（进项目先读）
 
-本仓库服务两类用户，AI 必须先分流再行动：
+本仓库只有一种工作方式：**AI 通过对话一步一步引导用户完成开店**。
+没有"命令式直跑"模式——无论用户是谁（商家、讲师、维护者），流程都以询问式进行。
 
-## 1. 角色分流（第一步，必做）
+## 1. 唯一入口
 
-| 用户画像 | 判别信号 | 必走路径 |
-|---|---|---|
-| **商家/店主**（默认假设） | "帮我开店 / 我要有自己的店 / 展示我的商品"；无 CLI/脚本/开发词汇 | [`skills/merchant-guided-setup/SKILL.md`](skills/merchant-guided-setup/SKILL.md) 的对话剧本 |
-| 开发者/讲师 | 主动说出脚本名、要求跑 CLI、排障、改 runtime | README 的命令式流程 + `skills/shopwright-workshop-orchestrator/SKILL.md` |
+任何"开店 / 走流程 / 建店"请求 → 先读
+[`skills/merchant-guided-setup/SKILL.md`](skills/merchant-guided-setup/SKILL.md)
+并严格按照该剧本**一步一步交互式**执行。拿不准时先问，不要先跑命令。
 
-拿不准时按**商家**处理（先问，不要先跑命令）。
+## 2. 硬规则（运行时强制，AI 不可绕过）
 
-## 2. 硬规则（两类用户都适用）
-
-1. **商品数据必须先问来源**。禁止未经询问就把 `templates/products.*.sample*.csv/xlsx`
-   或仓库任何示例文件当作用户数据导入。**运行时强制**：样例文件（`templates/…sample…`、
-   `products.inflationwear…`）在没有 `--allow-sample` 时会被 product-excel-import 直接拒绝；
-   `--allow-sample` 只能在用户明确说"用演示商品 / 示例数据"之后使用。
-2. **品牌信息、banner 图、广告语同理**：先问（口述/发文件/选候选），再执行；
-   商家发来的文件一律存到 `.workshop/<组>/` 下使用，不要求商家把文件放进仓库。
-   **运行时强制**：brand-intake 对样例答案文件同样要求 `--allow-sample`；
-   install-horizon-banner 在未传任何 `--image-*` / `--heading` / `--button-label`
-   时要求 `--allow-defaults`（= 用户明确接受了默认图和默认文案），否则拒绝执行。
-   产物会记录 `sample_source_used` / `defaults_used`，事后可审计。
-3. 每个写操作前用大白话向用户确认（剧本里有每步的确认话术）。
-4. Preview Store 是唯一店路径；主题只写 Unpublished；唯一例外是
-   `install-horizon-banner`（仅改 Horizon 首页一个文件、先备份、可还原）。
-5. 任何产物（JSON/报告/状态文件）不得包含 accessUrl、Admin token、店面密码。
-6. 流程收尾必须交付：`workshop-summary.md` / `.html` + 一个打开即见效果的店铺
-   预览链接（会话链接失效就当场用 `store-connect info` 换新）。
+1. **商品数据必须先问来源**（用户发 Excel/CSV、打字报商品、或明确选择演示数据）。
+   内置样例（`templates/…sample…`、`products.inflationwear…`）在没有 `--allow-sample`
+   时会被 product-excel-import **直接拒绝**；`--allow-sample` 只能在用户明确选择
+   演示数据之后使用，产物记录 `sample_source_used`。
+2. **品牌信息必须先问**（介绍、顾客、卖点、气质、主色，口述即可）。样例答案文件同样
+   需要 `--allow-sample`；AI 把用户口述整理成 `.workshop/<组>/merchant-answers.json`。
+3. **banner 图与广告语必须先问**（用户发图 / AI 找图给用户挑 / 用户明确接受默认）。
+   install-horizon-banner 在没有任何 `--image-*` / `--heading` / `--button-label` 时
+   需要 `--allow-defaults`，否则**直接拒绝**；结果记录 `defaults_used`。
+4. **每个写操作前用大白话确认**（剧本里有每步的确认话术）。
+5. 用户发来的文件（Excel / 图片 / 答案）一律存到 `.workshop/<组>/` 使用，
+   **不要求用户把文件放进仓库**。
+6. 安全底线：只用 Preview Store（现场创建的演示店）；主题只写 Unpublished；
+   唯一 live 例外是 `install-horizon-banner`（仅改 Horizon 首页一个文件、先备份、可还原）。
+   任何产物不得包含 accessUrl、Admin token、店面密码。
+7. **收尾必须交付**：`workshop-summary.md` / `.html` + 一个打开即见效果的店铺预览链接
+   （会话链接失效就当场用 `store-connect info` 换新）。
 
 ## 3. 快速入口
 
-- 商家剧本：`skills/merchant-guided-setup/SKILL.md`
-- 总控状态机：`skills/shopwright-workshop-orchestrator/SKILL.md`
-- 八步命令示例：README.md
-- 各步骤实现：`runtime/<step>/README.md`
+- 对话剧本（唯一入口）：`skills/merchant-guided-setup/SKILL.md`
+- 总控状态机（内部参考）：`skills/shopwright-workshop-orchestrator/SKILL.md`
+- 商家旅程总览：README.md
+- 各步骤实现与命令细节：`runtime/<step>/README.md`
