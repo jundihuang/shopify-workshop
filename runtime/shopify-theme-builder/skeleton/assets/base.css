@@ -46,12 +46,91 @@ img { max-width: 100%; height: auto; }
 
 .nav { display: flex; gap: 1rem; }
 
-.hero,
 .card,
 .product-card {
   background: #fff;
   padding: 1.25rem;
   margin: 1rem 0;
+}
+
+/* Full-bleed banner hero */
+.hero--banner {
+  position: relative;
+  margin: 0 0 1rem;
+  padding: 0;
+  background: var(--color-primary);
+  overflow: hidden;
+}
+
+.hero--banner .hero__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.hero--banner .hero__overlay {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: min(70vh, 34rem);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.38) 45%, rgba(0, 0, 0, 0) 75%);
+}
+
+.hero--banner .hero__content { padding: 3.5rem 0; }
+
+.hero--banner h1 {
+  color: #fff;
+  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.1;
+}
+
+.hero--banner p {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  max-width: 36rem;
+  margin: 0 0 1.25rem;
+}
+
+/* Collection page banner strip */
+.collection-banner {
+  position: relative;
+  margin: 0 0 1rem;
+  background: var(--color-primary);
+  overflow: hidden;
+}
+
+.collection-banner .collection-banner__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.collection-banner .collection-banner__overlay {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: clamp(11rem, 22vw, 17.5rem);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.2));
+  padding: 2rem 0;
+}
+
+.collection-banner h1 {
+  color: #fff;
+  margin: 0;
+}
+
+.collection-banner p {
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 40rem;
+  margin: 0.25rem 0 0;
 }
 
 .grid {
